@@ -34,18 +34,29 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--body);
-  padding-block: 0.75rem;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
   -webkit-tap-highlight-color: transparent;
 }
+.shell { display: flex; height: 100%; }
 button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-.app { height: 100%; display: flex; flex-direction: column; min-width: 0; }
+.app {
+  flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column;
+  container-type: inline-size;
+  padding-block: 0.75rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: 16px;
+}
 
 /* name */
-.top { display: flex; justify-content: center; padding-top: 0.5rem; }
+.top { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding-top: 0.5rem; }
+.modes { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+.modes button { border: 0; background: transparent; border-radius: 999px; height: 1.9rem; padding: 0 0.9rem; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.setter { display: flex; gap: 0.75rem; align-items: center; justify-content: center; margin-top: 0.75rem; }
+.setter label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--mute); }
+.setter input { width: 4.25rem; height: 2.5rem; text-align: center; font-family: var(--display); font-size: 1.125rem; background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem; }
+.btn.sm { height: 2rem; padding: 0 0.8rem; font-size: 0.6875rem; }
 #name {
   width: min(24rem, 100%);
   text-align: center;
@@ -76,7 +87,7 @@ button, input { font: inherit; color: inherit; }
   --chars: 8;
   font-family: var(--display);
   font-weight: 300;
-  font-size: min(calc(150vw / var(--chars)), 36vh, 24rem);
+  font-size: min(calc(150cqw / var(--chars)), 36vh, 24rem);
   line-height: 1;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -130,20 +141,19 @@ button, input { font: inherit; color: inherit; }
 .link:hover { color: var(--fg); }
 .link span { font-family: var(--display); letter-spacing: 0; margin-left: 0.25rem; }
 
-/* history sheet */
+/* history sidebar: docked on wide screens, slide-over drawer on narrow ones */
 .sheet {
-  position: fixed; inset: 0; z-index: 20;
+  width: 26rem; flex: none; height: 100%;
   display: flex; flex-direction: column;
-  background: var(--bg);
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--bg); border-left: 1px solid var(--line);
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) 16px;
 }
-.sheet-head, .sheet-body, .sheet-foot { width: min(42rem, 100%); margin-inline: auto; }
+@media (max-width: 760px) {
+  .sheet { position: fixed; top: 0; right: 0; bottom: 0; z-index: 20; width: min(26rem, 92vw); box-shadow: -12px 0 32px rgba(0,0,0,0.25); }
+}
 .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding-block: 1rem; }
 .sheet-head h2 { margin: 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; }
-.sheet-head div { display: flex; gap: 0.5rem; }
+.sheet-head div { display: flex; gap: 0.4rem; }
 .sheet-body { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 1rem; }
 .sheet-foot { padding-block: 0.5rem 0.75rem; display: flex; justify-content: flex-end; }
 .empty { color: var(--mute); font-size: 0.9375rem; line-height: 1.5; padding-block: 2rem; max-width: 30rem; }
@@ -170,14 +180,24 @@ button, input { font: inherit; color: inherit; }
 }
 </style>
 
+<div class="shell">
 <main class="app" id="app" data-state="idle">
   <div class="top">
     <input id="name" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" placeholder="Name this session" aria-label="Session name">
+    <div class="modes" id="modes" role="group" aria-label="Timer mode">
+      <button type="button" id="mUp" aria-pressed="true">Stopwatch</button>
+      <button type="button" id="mDown" aria-pressed="false">Countdown</button>
+    </div>
   </div>
   <div class="center">
-    <div id="time" role="timer" aria-label="Elapsed time"><span id="hh">00</span><i>:</i><span id="mm">00</span><i>:</i><span id="ss">00</span></div>
+    <div id="time" role="timer" aria-label="Time"><span id="hh">00</span><i>:</i><span id="mm">00</span><i>:</i><span id="ss">00</span></div>
     <div class="status"><span class="dot" aria-hidden="true"></span><span id="status">Ready</span></div>
     <div class="last" id="last" hidden></div>
+    <div class="setter" id="setter" hidden>
+      <label><input id="sh" type="number" min="0" max="99" inputmode="numeric" aria-label="Hours">h</label>
+      <label><input id="sm" type="number" min="0" max="59" inputmode="numeric" aria-label="Minutes">m</label>
+      <label><input id="sx" type="number" min="0" max="59" inputmode="numeric" aria-label="Seconds">s</label>
+    </div>
     <div class="controls" id="controls"></div>
   </div>
   <div class="foot">
@@ -185,19 +205,21 @@ button, input { font: inherit; color: inherit; }
   </div>
 </main>
 
-<section class="sheet" id="sheet" hidden aria-label="History">
+<aside class="sheet" id="sheet" hidden aria-label="History">
   <header class="sheet-head">
     <h2>History</h2>
     <div>
-      <button class="btn" id="xl" type="button" hidden>Download Excel</button>
-      <button class="btn" id="close" type="button">Close</button>
+      <button class="btn sm" id="xl" type="button">Excel</button>
+      <button class="btn sm" id="csv" type="button">CSV</button>
+      <button class="btn sm" id="close" type="button">Close</button>
     </div>
   </header>
   <div class="sheet-body" id="runs"></div>
   <footer class="sheet-foot">
     <button class="link" id="clear" type="button">Clear history</button>
   </footer>
-</section>
+</aside>
+</div>
 
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -208,14 +230,14 @@ button, input { font: inherit; color: inherit; }
 
   /*CORE*/
   const T = {
-    fresh: function (name) {
-      return { name: name || '', status: 'idle', startedAt: null, acc: 0, since: null, segStart: 0, sessions: [], stopAt: null };
+    fresh: function (name, mode, target) {
+      return { name: name || '', mode: mode || 'up', target: target == null ? 300000 : target, status: 'idle', startedAt: null, acc: 0, since: null, segStart: 0, sessions: [], stopAt: null };
     },
     elapsed: function (c, now) { return c.acc + (c.status === 'running' ? now - c.since : 0); },
     start: function (c, now) {
       if (c.status === 'running') return c;
       if (c.status === 'paused') { c.since = now; c.status = 'running'; return c; }
-      const n = T.fresh(c.name);
+      const n = T.fresh(c.name, c.mode, c.target);
       n.status = 'running'; n.startedAt = now; n.since = now;
       return n;
     },
@@ -236,9 +258,10 @@ button, input { font: inherit; color: inherit; }
     },
     stop: function (c, now) {
       if (c.status !== 'running' && c.status !== 'paused') return null;
-      const e = T.elapsed(c, now);
+      let e = T.elapsed(c, now);
+      if (c.mode === 'down') e = Math.min(e, c.target);
       c.acc = e; c.since = null; c.status = 'stopped'; c.stopAt = now;
-      return { id: now, name: c.name || 'Untitled', start: c.startedAt, stop: now, total: e, sessions: c.sessions.slice() };
+      return { id: now, name: c.name || 'Untitled', start: c.startedAt, stop: now, total: e, mode: c.mode, target: c.target, sessions: c.sessions.slice() };
     }
   };
   const pad = function (n) { return String(n).padStart(2, '0'); };
@@ -271,7 +294,8 @@ button, input { font: inherit; color: inherit; }
       if (d && d.cur && typeof d.cur.status === 'string') {
         cur = Object.assign(T.fresh(''), d.cur);
         if (!Array.isArray(cur.sessions)) cur.sessions = [];
-        if (cur.status === 'running' && typeof cur.since !== 'number') cur = T.fresh(cur.name);
+        if (cur.mode !== 'down') cur.mode = 'up';
+        if (cur.status === 'running' && typeof cur.since !== 'number') cur = T.fresh(cur.name, cur.mode, cur.target);
       }
       if (d && Array.isArray(d.runs)) runs = d.runs;
     } catch (e) { /* storage unavailable */ }
@@ -283,6 +307,7 @@ button, input { font: inherit; color: inherit; }
   const app = $('app'), timeEl = $('time'), hh = $('hh'), mm = $('mm'), ss = $('ss');
   const statusEl = $('status'), lastEl = $('last'), controls = $('controls'), nameEl = $('name');
   const sheet = $('sheet'), runsEl = $('runs'), xl = $('xl'), toastEl = $('toast');
+  const modesEl = $('modes'), mUp = $('mUp'), mDown = $('mDown'), setter = $('setter'), sH = $('sh'), sM = $('sm'), sS = $('sx');
 
   let toastTimer = null;
   function toast(msg) {
@@ -303,12 +328,28 @@ button, input { font: inherit; color: inherit; }
   }
   function unlock() { try { if (wl) wl.release(); } catch (e) { /* ignore */ } wl = null; }
 
+  function beep() {
+    try {
+      const C = window.AudioContext || window.webkitAudioContext, ctx = new C();
+      [0, 0.35, 0.7].forEach(function (t) {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = 880; g.gain.value = 0.15;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.2);
+      });
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (e) { /* ignore */ }
+  }
+
   function updateTime() {
-    const p = parts(T.elapsed(cur, Date.now()));
+    const e = T.elapsed(cur, Date.now());
+    if (cur.mode === 'down' && cur.status === 'running' && e >= cur.target) { doStop(true); return; }
+    const ms = cur.mode === 'down' ? Math.ceil(Math.max(0, cur.target - e) / 1000) * 1000 : e;
+    const p = parts(ms);
     const h = pad(p.h), m = pad(p.m), s = pad(p.s);
     if (hh.textContent !== h) { hh.textContent = h; timeEl.style.setProperty('--chars', String(h.length + 6)); }
     if (mm.textContent !== m) mm.textContent = m;
-    if (ss.textContent !== s) ss.textContent = s;
+    if (ss.textContent !== s) { ss.textContent = s; if (!sheet.hidden) renderHistory(); }
   }
 
   function mk(label, cls, fn, aria) {
@@ -319,17 +360,20 @@ button, input { font: inherit; color: inherit; }
     return b;
   }
 
+  let resetArmed = false, resetTimer = null;
   function renderControls() {
     const st = cur.status, kids = [];
     if (st === 'idle' || st === 'stopped') {
       kids.push(mk('Start', 'primary', doStart));
+      if (st === 'stopped') kids.push(mk('Reset', '', doReset));
     } else {
       kids.push(st === 'paused' ? mk('Resume', 'primary', doStart) : mk('Pause', '', doPause));
-      kids.push(mk('Stop', '', doStop));
+      kids.push(mk('Stop', '', function () { doStop(); }));
       const n = cur.sessions.length;
       const lg = mk('Log', '', doLog, 'Log session ' + (n + 1));
       if (n) lg.append(el('span', 'count', String(n)));
       kids.push(lg);
+      kids.push(mk(resetArmed ? 'Tap again' : 'Reset', '', doReset, 'Reset timer to zero'));
     }
     controls.replaceChildren.apply(controls, kids);
   }
@@ -355,9 +399,46 @@ button, input { font: inherit; color: inherit; }
     renderStatus();
     updateTime();
     $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
+    const live = cur.status === 'running' || cur.status === 'paused';
+    modesEl.hidden = live;
+    setter.hidden = !(cur.mode === 'down' && !live);
+    mUp.setAttribute('aria-pressed', String(cur.mode === 'up'));
+    mDown.setAttribute('aria-pressed', String(cur.mode === 'down'));
+    if (!sheet.hidden) renderHistory();
   }
 
-  function doStart() { cur = T.start(cur, Date.now()); save(); lock(); renderAll(); }
+  function syncSetter() {
+    const p = parts(cur.target);
+    sH.value = p.h; sM.value = p.m; sS.value = p.s;
+  }
+  function onSet() {
+    const v = function (i, max) { return Math.min(max, Math.max(0, parseInt(i.value, 10) || 0)); };
+    cur.target = ((v(sH, 99) * 60 + v(sM, 59)) * 60 + v(sS, 59)) * 1000;
+    if (cur.status === 'stopped') cur = T.fresh(cur.name, cur.mode, cur.target);
+    save(); renderAll();
+  }
+  function setMode(m) {
+    if (cur.status === 'running' || cur.status === 'paused' || cur.mode === m) return;
+    cur = T.fresh(cur.name, m, cur.target);
+    save(); syncSetter(); renderAll();
+  }
+  function doReset() {
+    const live = cur.status === 'running' || cur.status === 'paused';
+    if (live && !resetArmed) {
+      resetArmed = true; renderControls();
+      resetTimer = setTimeout(function () { resetArmed = false; renderControls(); }, 3000);
+      toast('Tap Reset again to discard this run.');
+      return;
+    }
+    clearTimeout(resetTimer); resetArmed = false; unlock();
+    cur = T.fresh(cur.name, cur.mode, cur.target);
+    save(); renderAll(); toast('Timer reset.');
+  }
+
+  function doStart() {
+    if (cur.mode === 'down' && (cur.status === 'idle' || cur.status === 'stopped') && cur.target < 1000) { toast('Set a time first.'); return; }
+    cur = T.start(cur, Date.now()); save(); lock(); renderAll();
+  }
   function doPause() { cur = T.pause(cur, Date.now()); save(); unlock(); renderAll(); }
   function doLog() {
     const s = T.log(cur, Date.now());
@@ -365,11 +446,13 @@ button, input { font: inherit; color: inherit; }
     save(); renderAll();
     toast('Session ' + s.n + ' logged · ' + hms(s.ms) + ' · ' + hrs(s.ms) + ' h');
   }
-  function doStop() {
+  function doStop(auto) {
     const r = T.stop(cur, Date.now());
     if (!r) return;
+    clearTimeout(resetTimer); resetArmed = false;
     runs.push(r); save(); unlock(); renderAll();
-    toast('Saved · ' + hms(r.total));
+    if (auto === true) { beep(); toast("Time's up · " + hms(r.total)); }
+    else toast('Saved · ' + hms(r.total));
   }
 
   /* history */
@@ -385,6 +468,7 @@ button, input { font: inherit; color: inherit; }
     top.append(tot);
     a.append(top);
     let when = (live ? 'In progress · ' : '') + dateLabel(r.start) + ' · ' + clock(r.start);
+    if (r.mode === 'down') when += ' · Countdown ' + hms(r.target);
     if (r.stop) when += ' → ' + (ymd(r.stop) !== ymd(r.start) ? dateLabel(r.stop) + ' ' : '') + clock(r.stop);
     a.append(el('p', 'run-when', when));
     if (r.sessions.length) {
@@ -403,7 +487,7 @@ button, input { font: inherit; color: inherit; }
   function allRuns() {
     const list = runs.slice();
     if (cur.status === 'running' || cur.status === 'paused') {
-      list.push({ name: cur.name || 'Untitled', start: cur.startedAt, stop: null, total: T.elapsed(cur, Date.now()), sessions: cur.sessions.slice(), live: true });
+      list.push({ name: cur.name || 'Untitled', start: cur.startedAt, stop: null, total: T.elapsed(cur, Date.now()), mode: cur.mode, target: cur.target, sessions: cur.sessions.slice(), live: true });
     }
     return list;
   }
@@ -415,8 +499,8 @@ button, input { font: inherit; color: inherit; }
     }
     runsEl.replaceChildren.apply(runsEl, list.map(function (r) { return runEl(r, !!r.live); }));
   }
-  function openSheet() { renderHistory(); sheet.hidden = false; $('close').focus(); }
-  function closeSheet() { sheet.hidden = true; $('hist').focus(); }
+  function openSheet() { renderHistory(); sheet.hidden = false; $('hist').setAttribute('aria-expanded', 'true'); }
+  function closeSheet() { sheet.hidden = true; $('hist').setAttribute('aria-expanded', 'false'); }
 
   let armed = false, armTimer = null;
   function doClear() {
@@ -430,53 +514,81 @@ button, input { font: inherit; color: inherit; }
     runs = []; save(); renderHistory(); renderAll();
   }
 
-  /* excel export */
+  /* export: real file download (Blob), with the Claude downloads capability used if present */
   let dl = null;
   try {
     if (window.claude && window.claude.use) {
-      window.claude.use('downloads').then(function (d) { dl = d; xl.hidden = !d; }).catch(function () { /* hidden */ });
+      window.claude.use('downloads').then(function (d) { dl = d; }).catch(function () { /* ignore */ });
     }
-  } catch (e) { /* hidden */ }
+  } catch (e) { /* ignore */ }
 
   const r4 = function (x) { return Math.round(x * 1e4) / 1e4; };
-  async function exportXlsx() {
+  async function saveFile(filename, blob) {
+    if (dl) {
+      try { await dl.save({ filename: filename, data: new Uint8Array(await blob.arrayBuffer()) }); return; }
+      catch (e) { if (e && e.code === 'declined') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    toast('Downloaded ' + filename);
+  }
+  const modeName = function (r) { return r.mode === 'down' ? 'Countdown' : 'Stopwatch'; };
+
+  function exportXlsx() {
     const list = allRuns();
     if (!list.length) { toast('Nothing to export yet.'); return; }
-    if (typeof XLSX === 'undefined') { toast('Excel library did not load. Reload and try again.'); return; }
-    const runRows = [['Name', 'Start date', 'Start time', 'Stop date', 'Stop time', 'Total (h:mm:ss)', 'Total (hours)', 'Sessions logged']];
+    if (typeof XLSX === 'undefined') { toast('Excel library did not load (needs internet). Try CSV.'); return; }
+    const runRows = [['Name', 'Mode', 'Start date', 'Start time', 'Stop date', 'Stop time', 'Total (h:mm:ss)', 'Total (hours)', 'Sessions logged']];
     const sessRows = [['Name', 'Start date', 'Session #', 'Duration (h:mm:ss)', 'Duration (hours)', 'Logged at', 'Timer at log (h:mm:ss)']];
     list.forEach(function (r) {
-      runRows.push([r.name, ymd(r.start), clock(r.start), r.stop ? ymd(r.stop) : '', r.stop ? clock(r.stop) : 'running', hms(r.total), r4(r.total / 3600000), r.sessions.length]);
+      runRows.push([r.name, modeName(r), ymd(r.start), clock(r.start), r.stop ? ymd(r.stop) : '', r.stop ? clock(r.stop) : 'running', hms(r.total), r4(r.total / 3600000), r.sessions.length]);
       r.sessions.forEach(function (s) {
         sessRows.push([r.name, ymd(r.start), s.n, hms(s.ms), r4(s.ms / 3600000), clock(s.at), hms(s.elapsed)]);
       });
     });
     const wb = XLSX.utils.book_new();
     const w1 = XLSX.utils.aoa_to_sheet(runRows);
-    w1['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 11 }, { wch: 12 }, { wch: 11 }, { wch: 16 }, { wch: 14 }, { wch: 15 }];
+    w1['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 11 }, { wch: 12 }, { wch: 11 }, { wch: 16 }, { wch: 14 }, { wch: 15 }];
     const w2 = XLSX.utils.aoa_to_sheet(sessRows);
     w2['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 16 }, { wch: 11 }, { wch: 22 }];
     XLSX.utils.book_append_sheet(wb, w1, 'Runs');
     XLSX.utils.book_append_sheet(wb, w2, 'Sessions');
     try {
       const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      await dl.save({ filename: 'timer-sessions-' + ymd(Date.now()) + '.xlsx', data: new Uint8Array(out) });
-    } catch (e) {
-      if (e && e.code === 'declined') return;
-      toast('Could not save the file here.');
-    }
+      saveFile('timer-sessions-' + ymd(Date.now()) + '.xlsx', new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    } catch (e) { toast('Could not create the Excel file.'); }
+  }
+
+  const csvCell = function (v) { const t = String(v == null ? '' : v); return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  function exportCsv() {
+    const list = allRuns();
+    if (!list.length) { toast('Nothing to export yet.'); return; }
+    const rows = [['Name', 'Mode', 'Start date', 'Start time', 'Stop date', 'Stop time', 'Run total (h:mm:ss)', 'Run total (hours)', 'Session #', 'Session (h:mm:ss)', 'Session (hours)', 'Logged at']];
+    list.forEach(function (r) {
+      const base = [r.name, modeName(r), ymd(r.start), clock(r.start), r.stop ? ymd(r.stop) : '', r.stop ? clock(r.stop) : 'running', hms(r.total), r4(r.total / 3600000)];
+      if (!r.sessions.length) rows.push(base.concat(['', '', '', '']));
+      else r.sessions.forEach(function (s) { rows.push(base.concat([s.n, hms(s.ms), r4(s.ms / 3600000), clock(s.at)])); });
+    });
+    const text = '\ufeff' + rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+    saveFile('timer-sessions-' + ymd(Date.now()) + '.csv', new Blob([text], { type: 'text/csv;charset=utf-8' }));
   }
 
   /* wiring */
   nameEl.addEventListener('input', function () { cur.name = nameEl.value; save(); });
   nameEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') nameEl.blur(); });
-  $('hist').addEventListener('click', openSheet);
+  $('hist').addEventListener('click', function () { if (sheet.hidden) openSheet(); else closeSheet(); });
+  mUp.addEventListener('click', function () { setMode('up'); });
+  mDown.addEventListener('click', function () { setMode('down'); });
+  [sH, sM, sS].forEach(function (i) { i.addEventListener('input', onSet); i.addEventListener('focus', function () { i.select(); }); });
+  $('csv').addEventListener('click', exportCsv);
   $('close').addEventListener('click', closeSheet);
   $('clear').addEventListener('click', doClear);
   xl.addEventListener('click', exportXlsx);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !sheet.hidden) { closeSheet(); return; }
-    if (e.code !== 'Space' || !sheet.hidden) return;
+    if (e.code !== 'Space') return;
     const t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON')) return;
     e.preventDefault();
@@ -488,6 +600,7 @@ button, input { font: inherit; color: inherit; }
 
   load();
   nameEl.value = cur.name || '';
+  syncSetter();
   renderAll();
   if (cur.status === 'running') lock();
   setInterval(updateTime, 200);
