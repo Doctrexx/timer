@@ -1,0 +1,497 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Quiet Timer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one full-viewport column. Session name on top, an oversized thin-weight clock centred, a quiet row of small controls beneath it, History at the foot. */
+:root {
+  --bg: #F2F4F1;
+  --fg: #13171A;
+  --mute: #5D6862;
+  --line: #D5DBD4;
+  --surface: #E7EBE6;
+  --accent: #1B7F5C;
+  --accent-fg: #FFFFFF;
+  --display: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1110; --fg: #E9EEEA; --mute: #8D9892; --line: #232E28; --surface: #161C19;
+    --accent: #4CD3A0; --accent-fg: #06130E; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1110; --fg: #E9EEEA; --mute: #8D9892; --line: #232E28; --surface: #161C19;
+  --accent: #4CD3A0; --accent-fg: #06130E; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  padding-block: 0.75rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.app { height: 100%; display: flex; flex-direction: column; min-width: 0; }
+
+/* name */
+.top { display: flex; justify-content: center; padding-top: 0.5rem; }
+#name {
+  width: min(24rem, 100%);
+  text-align: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: 0.5rem 0.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+#name::placeholder { color: var(--mute); font-weight: 400; }
+#name:hover { border-bottom-color: var(--line); }
+#name:focus { outline: none; border-bottom-color: var(--accent); }
+
+/* clock */
+.center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+#time {
+  --chars: 8;
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: min(calc(150vw / var(--chars)), 36vh, 24rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+#time i { font-style: normal; opacity: 0.35; padding: 0 0.02em; }
+.app[data-state="stopped"] #time { opacity: 0.5; }
+.app[data-state="paused"] #time { opacity: 0.7; }
+
+.status {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8125rem; color: var(--mute); letter-spacing: 0.02em;
+  min-height: 1.25rem;
+}
+.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--mute); flex: none; }
+.app[data-state="running"] .dot { background: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.3; } }
+@media (prefers-reduced-motion: reduce) { .app[data-state="running"] .dot { animation: none; } }
+.last {
+  font-family: var(--display); font-size: 0.75rem; color: var(--mute);
+  font-variant-numeric: tabular-nums; min-height: 1rem;
+}
+
+.controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  height: 2.5rem; padding: 0 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  cursor: pointer;
+}
+.btn:hover { background: var(--surface); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.count {
+  font-family: var(--display); font-size: 0.6875rem; font-weight: 500;
+  min-width: 1.25rem; height: 1.25rem; padding: 0 0.3rem; border-radius: 999px;
+  display: inline-grid; place-items: center;
+  background: var(--fg); color: var(--bg); letter-spacing: 0;
+}
+
+.foot { display: flex; justify-content: center; padding-bottom: 0.25rem; }
+.link {
+  background: transparent; border: 0; padding: 0.6rem 0.9rem; cursor: pointer;
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--mute);
+}
+.link:hover { color: var(--fg); }
+.link span { font-family: var(--display); letter-spacing: 0; margin-left: 0.25rem; }
+
+/* history sheet */
+.sheet {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet-head, .sheet-body, .sheet-foot { width: min(42rem, 100%); margin-inline: auto; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding-block: 1rem; }
+.sheet-head h2 { margin: 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; }
+.sheet-head div { display: flex; gap: 0.5rem; }
+.sheet-body { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 1rem; }
+.sheet-foot { padding-block: 0.5rem 0.75rem; display: flex; justify-content: flex-end; }
+.empty { color: var(--mute); font-size: 0.9375rem; line-height: 1.5; padding-block: 2rem; max-width: 30rem; }
+
+.run { padding-block: 1rem; border-top: 1px solid var(--line); }
+.run:first-child { border-top: 0; }
+.run-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.run-top h3 { margin: 0; font-size: 1rem; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.run-total { font-family: var(--display); font-size: 1rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.run-total small { margin-left: 0.5rem; color: var(--mute); font-size: 0.75rem; }
+.run-when { margin: 0.25rem 0 0.5rem; font-size: 0.8125rem; color: var(--mute); font-variant-numeric: tabular-nums; }
+.run-none { margin: 0; font-size: 0.8125rem; color: var(--mute); }
+.sess { list-style: none; margin: 0; padding: 0; font-family: var(--display); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+.sess li { display: grid; grid-template-columns: 2rem 1fr auto auto; gap: 0.75rem; padding-block: 0.3rem; border-top: 1px dashed var(--line); }
+.sess .n, .sess .mu { color: var(--mute); }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 30;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  max-width: calc(100vw - 32px);
+  background: var(--fg); color: var(--bg);
+  padding: 0.6rem 1rem; border-radius: 999px;
+  font-size: 0.8125rem; text-align: center;
+}
+</style>
+
+<main class="app" id="app" data-state="idle">
+  <div class="top">
+    <input id="name" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" placeholder="Name this session" aria-label="Session name">
+  </div>
+  <div class="center">
+    <div id="time" role="timer" aria-label="Elapsed time"><span id="hh">00</span><i>:</i><span id="mm">00</span><i>:</i><span id="ss">00</span></div>
+    <div class="status"><span class="dot" aria-hidden="true"></span><span id="status">Ready</span></div>
+    <div class="last" id="last" hidden></div>
+    <div class="controls" id="controls"></div>
+  </div>
+  <div class="foot">
+    <button class="link" id="hist" type="button">History<span id="histn"></span></button>
+  </div>
+</main>
+
+<section class="sheet" id="sheet" hidden aria-label="History">
+  <header class="sheet-head">
+    <h2>History</h2>
+    <div>
+      <button class="btn" id="xl" type="button" hidden>Download Excel</button>
+      <button class="btn" id="close" type="button">Close</button>
+    </div>
+  </header>
+  <div class="sheet-body" id="runs"></div>
+  <footer class="sheet-foot">
+    <button class="link" id="clear" type="button">Clear history</button>
+  </footer>
+</section>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /*CORE*/
+  const T = {
+    fresh: function (name) {
+      return { name: name || '', status: 'idle', startedAt: null, acc: 0, since: null, segStart: 0, sessions: [], stopAt: null };
+    },
+    elapsed: function (c, now) { return c.acc + (c.status === 'running' ? now - c.since : 0); },
+    start: function (c, now) {
+      if (c.status === 'running') return c;
+      if (c.status === 'paused') { c.since = now; c.status = 'running'; return c; }
+      const n = T.fresh(c.name);
+      n.status = 'running'; n.startedAt = now; n.since = now;
+      return n;
+    },
+    pause: function (c, now) {
+      if (c.status !== 'running') return c;
+      c.acc += now - c.since; c.since = null; c.status = 'paused';
+      return c;
+    },
+    log: function (c, now) {
+      if (c.status !== 'running' && c.status !== 'paused') return null;
+      const e = T.elapsed(c, now);
+      const ms = e - c.segStart;
+      if (ms < 1000) return null;
+      const s = { n: c.sessions.length + 1, ms: ms, at: now, elapsed: e };
+      c.sessions.push(s);
+      c.segStart = e;
+      return s;
+    },
+    stop: function (c, now) {
+      if (c.status !== 'running' && c.status !== 'paused') return null;
+      const e = T.elapsed(c, now);
+      c.acc = e; c.since = null; c.status = 'stopped'; c.stopAt = now;
+      return { id: now, name: c.name || 'Untitled', start: c.startedAt, stop: now, total: e, sessions: c.sessions.slice() };
+    }
+  };
+  const pad = function (n) { return String(n).padStart(2, '0'); };
+  const parts = function (ms) {
+    const s = Math.floor(Math.max(0, ms) / 1000);
+    return { h: Math.floor(s / 3600), m: Math.floor((s % 3600) / 60), s: s % 60 };
+  };
+  const hms = function (ms) { const p = parts(ms); return p.h + ':' + pad(p.m) + ':' + pad(p.s); };
+  const hrs = function (ms) { return (ms / 3600000).toFixed(2); };
+  const clock = function (t) { const d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); };
+  const ymd = function (t) { const d = new Date(t); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  /*ENDCORE*/
+
+  const $ = function (id) { return document.getElementById(id); };
+  const el = function (tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const KEY = 'quiet-timer-v1';
+  let cur = T.fresh('');
+  let runs = [];
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d && d.cur && typeof d.cur.status === 'string') {
+        cur = Object.assign(T.fresh(''), d.cur);
+        if (!Array.isArray(cur.sessions)) cur.sessions = [];
+        if (cur.status === 'running' && typeof cur.since !== 'number') cur = T.fresh(cur.name);
+      }
+      if (d && Array.isArray(d.runs)) runs = d.runs;
+    } catch (e) { /* storage unavailable */ }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs })); } catch (e) { /* ignore */ }
+  }
+
+  const app = $('app'), timeEl = $('time'), hh = $('hh'), mm = $('mm'), ss = $('ss');
+  const statusEl = $('status'), lastEl = $('last'), controls = $('controls'), nameEl = $('name');
+  const sheet = $('sheet'), runsEl = $('runs'), xl = $('xl'), toastEl = $('toast');
+
+  let toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 3200);
+  }
+
+  /* keep the screen on while timing; harmless if refused */
+  let wl = null;
+  async function lock() {
+    try {
+      if (navigator.wakeLock && !wl && document.visibilityState === 'visible') {
+        wl = await navigator.wakeLock.request('screen');
+        wl.addEventListener('release', function () { wl = null; });
+      }
+    } catch (e) { wl = null; }
+  }
+  function unlock() { try { if (wl) wl.release(); } catch (e) { /* ignore */ } wl = null; }
+
+  function updateTime() {
+    const p = parts(T.elapsed(cur, Date.now()));
+    const h = pad(p.h), m = pad(p.m), s = pad(p.s);
+    if (hh.textContent !== h) { hh.textContent = h; timeEl.style.setProperty('--chars', String(h.length + 6)); }
+    if (mm.textContent !== m) mm.textContent = m;
+    if (ss.textContent !== s) ss.textContent = s;
+  }
+
+  function mk(label, cls, fn, aria) {
+    const b = el('button', 'btn' + (cls ? ' ' + cls : ''), label);
+    b.type = 'button';
+    b.addEventListener('click', fn);
+    if (aria) b.setAttribute('aria-label', aria);
+    return b;
+  }
+
+  function renderControls() {
+    const st = cur.status, kids = [];
+    if (st === 'idle' || st === 'stopped') {
+      kids.push(mk('Start', 'primary', doStart));
+    } else {
+      kids.push(st === 'paused' ? mk('Resume', 'primary', doStart) : mk('Pause', '', doPause));
+      kids.push(mk('Stop', '', doStop));
+      const n = cur.sessions.length;
+      const lg = mk('Log', '', doLog, 'Log session ' + (n + 1));
+      if (n) lg.append(el('span', 'count', String(n)));
+      kids.push(lg);
+    }
+    controls.replaceChildren.apply(controls, kids);
+  }
+
+  function renderStatus() {
+    const st = cur.status;
+    let txt = 'Ready';
+    if (st === 'running') txt = 'Running · started ' + clock(cur.startedAt);
+    else if (st === 'paused') txt = 'Paused · started ' + clock(cur.startedAt);
+    else if (st === 'stopped') txt = 'Stopped · ' + clock(cur.startedAt) + ' → ' + clock(cur.stopAt);
+    statusEl.textContent = txt;
+    const n = cur.sessions.length;
+    if (n) {
+      const s = cur.sessions[n - 1];
+      lastEl.textContent = 'Session ' + s.n + ' · ' + hms(s.ms) + ' · ' + hrs(s.ms) + ' h';
+    }
+    lastEl.hidden = !n;
+  }
+
+  function renderAll() {
+    app.dataset.state = cur.status;
+    renderControls();
+    renderStatus();
+    updateTime();
+    $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
+  }
+
+  function doStart() { cur = T.start(cur, Date.now()); save(); lock(); renderAll(); }
+  function doPause() { cur = T.pause(cur, Date.now()); save(); unlock(); renderAll(); }
+  function doLog() {
+    const s = T.log(cur, Date.now());
+    if (!s) { toast('Nothing new to log yet.'); return; }
+    save(); renderAll();
+    toast('Session ' + s.n + ' logged · ' + hms(s.ms) + ' · ' + hrs(s.ms) + ' h');
+  }
+  function doStop() {
+    const r = T.stop(cur, Date.now());
+    if (!r) return;
+    runs.push(r); save(); unlock(); renderAll();
+    toast('Saved · ' + hms(r.total));
+  }
+
+  /* history */
+  function dateLabel(t) {
+    return new Date(t).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function runEl(r, live) {
+    const a = el('article', 'run');
+    const top = el('div', 'run-top');
+    top.append(el('h3', '', r.name || 'Untitled'));
+    const tot = el('span', 'run-total', hms(r.total));
+    tot.append(el('small', '', hrs(r.total) + ' h'));
+    top.append(tot);
+    a.append(top);
+    let when = (live ? 'In progress · ' : '') + dateLabel(r.start) + ' · ' + clock(r.start);
+    if (r.stop) when += ' → ' + (ymd(r.stop) !== ymd(r.start) ? dateLabel(r.stop) + ' ' : '') + clock(r.stop);
+    a.append(el('p', 'run-when', when));
+    if (r.sessions.length) {
+      const ol = el('ol', 'sess');
+      r.sessions.forEach(function (s) {
+        const li = el('li');
+        li.append(el('span', 'n', 'S' + s.n), el('span', '', hms(s.ms)), el('span', 'mu', hrs(s.ms) + ' h'), el('span', 'mu', clock(s.at)));
+        ol.append(li);
+      });
+      a.append(ol);
+    } else {
+      a.append(el('p', 'run-none', 'No sessions logged'));
+    }
+    return a;
+  }
+  function allRuns() {
+    const list = runs.slice();
+    if (cur.status === 'running' || cur.status === 'paused') {
+      list.push({ name: cur.name || 'Untitled', start: cur.startedAt, stop: null, total: T.elapsed(cur, Date.now()), sessions: cur.sessions.slice(), live: true });
+    }
+    return list;
+  }
+  function renderHistory() {
+    const list = allRuns().reverse();
+    if (!list.length) {
+      runsEl.replaceChildren(el('p', 'empty', 'No runs yet. Press Start, then Stop to save a run here. Use Log to mark sessions along the way.'));
+      return;
+    }
+    runsEl.replaceChildren.apply(runsEl, list.map(function (r) { return runEl(r, !!r.live); }));
+  }
+  function openSheet() { renderHistory(); sheet.hidden = false; $('close').focus(); }
+  function closeSheet() { sheet.hidden = true; $('hist').focus(); }
+
+  let armed = false, armTimer = null;
+  function doClear() {
+    const b = $('clear');
+    if (!armed) {
+      armed = true; b.textContent = 'Tap again to clear';
+      armTimer = setTimeout(function () { armed = false; b.textContent = 'Clear history'; }, 3000);
+      return;
+    }
+    clearTimeout(armTimer); armed = false; b.textContent = 'Clear history';
+    runs = []; save(); renderHistory(); renderAll();
+  }
+
+  /* excel export */
+  let dl = null;
+  try {
+    if (window.claude && window.claude.use) {
+      window.claude.use('downloads').then(function (d) { dl = d; xl.hidden = !d; }).catch(function () { /* hidden */ });
+    }
+  } catch (e) { /* hidden */ }
+
+  const r4 = function (x) { return Math.round(x * 1e4) / 1e4; };
+  async function exportXlsx() {
+    const list = allRuns();
+    if (!list.length) { toast('Nothing to export yet.'); return; }
+    if (typeof XLSX === 'undefined') { toast('Excel library did not load. Reload and try again.'); return; }
+    const runRows = [['Name', 'Start date', 'Start time', 'Stop date', 'Stop time', 'Total (h:mm:ss)', 'Total (hours)', 'Sessions logged']];
+    const sessRows = [['Name', 'Start date', 'Session #', 'Duration (h:mm:ss)', 'Duration (hours)', 'Logged at', 'Timer at log (h:mm:ss)']];
+    list.forEach(function (r) {
+      runRows.push([r.name, ymd(r.start), clock(r.start), r.stop ? ymd(r.stop) : '', r.stop ? clock(r.stop) : 'running', hms(r.total), r4(r.total / 3600000), r.sessions.length]);
+      r.sessions.forEach(function (s) {
+        sessRows.push([r.name, ymd(r.start), s.n, hms(s.ms), r4(s.ms / 3600000), clock(s.at), hms(s.elapsed)]);
+      });
+    });
+    const wb = XLSX.utils.book_new();
+    const w1 = XLSX.utils.aoa_to_sheet(runRows);
+    w1['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 11 }, { wch: 12 }, { wch: 11 }, { wch: 16 }, { wch: 14 }, { wch: 15 }];
+    const w2 = XLSX.utils.aoa_to_sheet(sessRows);
+    w2['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 16 }, { wch: 11 }, { wch: 22 }];
+    XLSX.utils.book_append_sheet(wb, w1, 'Runs');
+    XLSX.utils.book_append_sheet(wb, w2, 'Sessions');
+    try {
+      const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      await dl.save({ filename: 'timer-sessions-' + ymd(Date.now()) + '.xlsx', data: new Uint8Array(out) });
+    } catch (e) {
+      if (e && e.code === 'declined') return;
+      toast('Could not save the file here.');
+    }
+  }
+
+  /* wiring */
+  nameEl.addEventListener('input', function () { cur.name = nameEl.value; save(); });
+  nameEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') nameEl.blur(); });
+  $('hist').addEventListener('click', openSheet);
+  $('close').addEventListener('click', closeSheet);
+  $('clear').addEventListener('click', doClear);
+  xl.addEventListener('click', exportXlsx);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !sheet.hidden) { closeSheet(); return; }
+    if (e.code !== 'Space' || !sheet.hidden) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON')) return;
+    e.preventDefault();
+    if (cur.status === 'running') doPause(); else doStart();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') { updateTime(); if (cur.status === 'running') lock(); }
+  });
+
+  load();
+  nameEl.value = cur.name || '';
+  renderAll();
+  if (cur.status === 'running') lock();
+  setInterval(updateTime, 200);
+})();
+</script>
+
+</body></html>
