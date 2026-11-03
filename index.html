@@ -470,6 +470,45 @@ button, input { font: inherit; color: inherit; }
 }
 </style>
 
+<style>
+/* Smarter data */
+.today{font:.68rem var(--display);color:var(--mute);letter-spacing:.04em;min-height:1rem}
+.today b{color:var(--accent);font-weight:500}
+.tagsug{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem;width:min(31rem,100%)}
+.tagsug:empty{display:none}
+.tagsug button{border:1px dashed color-mix(in srgb,var(--accent) 40%,var(--line));background:transparent;color:var(--mute);border-radius:999px;padding:.22rem .62rem;font:.64rem var(--body);cursor:pointer;transition:.18s}
+.tagsug button:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent);border-style:solid}
+.ins-card{margin:.8rem 0 0;padding:.85rem .9rem;border:1px solid var(--line);border-radius:1rem;background:color-mix(in srgb,var(--surface) 38%,transparent)}
+.ins-title{color:var(--mute);font-size:.57rem;font-weight:600;letter-spacing:.16em}
+.ins-head{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.goal-card{display:flex;align-items:center;gap:.9rem}
+.ring{width:4.2rem;height:4.2rem;flex:none}
+.ring circle{fill:none;stroke-width:6}
+.ring-bg{stroke:var(--line)}
+.ring-fg{stroke:var(--accent);stroke-linecap:round}
+.goal-info{display:grid;gap:.1rem;flex:1;min-width:0}
+.goal-info strong{font:500 1.15rem var(--display)}
+.goal-info small{color:var(--mute);font-size:.66rem}
+.goal-edit{display:flex;align-items:center;gap:.35rem;color:var(--mute);font-size:.62rem}
+.goal-edit input{width:3.4rem;height:1.9rem;text-align:center;border:1px solid var(--line);border-radius:.6rem;background:var(--bg);font:.72rem var(--display)}
+.wk-bars{position:relative;height:4.6rem;display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;align-items:end;border-bottom:1px solid var(--line)}
+.wk-bar{border-radius:.35rem .35rem 0 0;background:color-mix(in srgb,var(--accent) 45%,var(--line));min-height:2px}
+.wk-bar.today-bar{background:var(--accent)}
+.wk-bar.empty{background:var(--line);opacity:.6}
+.wk-goal{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--accent) 60%,transparent);pointer-events:none}
+.wk-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-top:.35rem;text-align:center}
+.wk-labels span{display:block;font:.6rem var(--display);color:var(--mute)}
+.wk-labels span b{display:block;font-weight:500;color:var(--fg);font-size:.58rem;margin-top:.1rem}
+.ins-note{margin:.6rem 0 0;color:var(--mute);font-size:.62rem}
+.range{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px}
+.range button{border:0;background:transparent;color:var(--mute);border-radius:999px;padding:.2rem .6rem;font:600 .56rem var(--body);letter-spacing:.08em;cursor:pointer}
+.range button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.tg-row{display:grid;grid-template-columns:minmax(3rem,6.5rem) 1fr auto;gap:.55rem;align-items:center;margin:.45rem 0}
+.tg-name{font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tg-track{height:.48rem;border-radius:999px;background:var(--line);overflow:hidden}
+.tg-bar{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#d4c99b))}
+.tg-val{font:.62rem var(--display);color:var(--mute)}
+</style>
 <div class="shell">
 <main class="app" id="app" data-state="idle">
   <div class="top">
@@ -485,6 +524,7 @@ button, input { font: inherit; color: inherit; }
       <label for="tags">TAGS</label>
       <input id="tags" type="text" maxlength="120" autocomplete="off" placeholder="e.g. deep work, study, writing">
       <span class="tag-hint">Separate tags with commas</span>
+      <div class="tagsug" id="tagsug" aria-label="Suggested tags"></div>
     </div>
     <div class="modes" id="modes" role="group" aria-label="Timer mode">
       <button type="button" id="mUp" aria-pressed="true">Stopwatch</button>
@@ -495,6 +535,7 @@ button, input { font: inherit; color: inherit; }
     <div id="time" role="timer" aria-label="Time"><span id="hh">00</span><i>:</i><span id="mm">00</span><i>:</i><span id="ss">00</span></div>
     <div class="status"><span class="dot" aria-hidden="true"></span><span id="status">Ready</span></div>
     <div class="last" id="last" hidden></div>
+    <div class="today" id="today"></div>
     <div class="setter" id="setter" hidden>
       <label><input id="sh" type="number" min="0" max="99" inputmode="numeric" aria-label="Hours">h</label>
       <label><input id="sm" type="number" min="0" max="59" inputmode="numeric" aria-label="Minutes">m</label>
@@ -514,7 +555,7 @@ button, input { font: inherit; color: inherit; }
     </div>
   </header>
   <div class="streak-overview" id="streakOverview"></div>
-  <div class="sheet-body" id="runs"></div>
+  <div class="sheet-body"><div id="insights"></div><div id="runs"></div></div>
   <footer class="sheet-foot">
     <button class="link" id="clear" type="button">Clear history</button>
   </footer>
@@ -586,6 +627,8 @@ button, input { font: inherit; color: inherit; }
   const KEY = 'quiet-timer-v1';
   let cur = T.fresh('');
   let runs = [];
+  let goal = 120;      /* daily goal, minutes */
+  let range = '7';     /* tag stats range: '7' | '30' | 'all' */
 
   function load() {
     try {
@@ -600,10 +643,11 @@ button, input { font: inherit; color: inherit; }
         if (cur.status === 'running' && typeof cur.since !== 'number') cur = T.fresh(cur.name, cur.mode, cur.target);
       }
       if (d && Array.isArray(d.runs)) runs = d.runs;
+      if (d && typeof d.goal === 'number' && d.goal >= 5) goal = Math.min(1440, d.goal);
     } catch (e) { /* storage unavailable */ }
   }
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs, goal: goal })); } catch (e) { /* ignore */ }
   }
 
   const app = $('app'), timeEl = $('time'), hh = $('hh'), mm = $('mm'), ss = $('ss');
@@ -651,7 +695,7 @@ button, input { font: inherit; color: inherit; }
     const h = pad(p.h), m = pad(p.m), s = pad(p.s);
     if (hh.textContent !== h) { hh.textContent = h; timeEl.style.setProperty('--chars', String(h.length + 6)); }
     if (mm.textContent !== m) mm.textContent = m;
-    if (ss.textContent !== s) { ss.textContent = s; if (!sheet.hidden) updateLiveTotal(); }
+    if (ss.textContent !== s) { ss.textContent = s; updateToday(); if (!sheet.hidden) { updateLiveTotal(); if (s === '00') renderInsights(); } }
   }
 
   function mk(label, cls, fn, aria) {
@@ -700,6 +744,7 @@ button, input { font: inherit; color: inherit; }
     renderControls();
     renderStatus();
     updateTime();
+    updateToday(); renderTagSug();
     $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
     const live = cur.status === 'running' || cur.status === 'paused';
     modesEl.hidden = live;
@@ -819,6 +864,120 @@ button, input { font: inherit; color: inherit; }
     t.firstChild.nodeValue = hms(ms);
     t.lastChild.textContent = hrs(ms) + ' h';
   }
+  /* ---- smarter data ---- */
+  const short = function (ms) {
+    if (ms < 30000) return '–';
+    return ms >= 3600000 ? (ms / 3600000).toFixed(1) + 'h' : Math.max(1, Math.round(ms / 60000)) + 'm';
+  };
+  const svgEl = function (tag, attrs) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    return e;
+  };
+  function dayTotals() {
+    const m = {};
+    allRuns().forEach(function (r) { if (r.start) { const k = ymd(r.start); m[k] = (m[k] || 0) + r.total; } });
+    return m;
+  }
+  function todayMs() { return dayTotals()[ymd(Date.now())] || 0; }
+  function updateToday() {
+    const t = $('today'); if (!t) return;
+    const ms = todayMs(), g = goal * 60000;
+    t.replaceChildren();
+    if (!ms && !runs.length && cur.status === 'idle') { t.textContent = 'Daily goal · ' + short(g); return; }
+    t.append('Today ' + hms(ms) + ' · ');
+    t.append(el('b', '', ms >= g ? 'goal reached ✓' : Math.round(ms / g * 100) + '% of ' + short(g)));
+  }
+  function renderTagSug() {
+    const box = $('tagsug'); if (!box) return;
+    const have = (cur.tags || []).map(function (t) { return t.toLowerCase(); });
+    const freq = {};
+    runs.forEach(function (r) { (r.tags || []).forEach(function (t) { const k = t.toLowerCase(); if (!freq[k]) freq[k] = { label: t, n: 0 }; freq[k].n++; }); });
+    const top = Object.keys(freq).filter(function (k) { return have.indexOf(k) < 0; })
+      .sort(function (a, b) { return freq[b].n - freq[a].n; }).slice(0, 6);
+    box.replaceChildren.apply(box, top.map(function (k) {
+      const b = el('button', '', '+ ' + freq[k].label); b.type = 'button';
+      b.addEventListener('click', function () {
+        if ((cur.tags || []).length >= 8) { toast('Up to 8 tags.'); return; }
+        cur.tags = (cur.tags || []).concat(freq[k].label);
+        tagsEl.value = cur.tags.join(', ');
+        save(); renderTagSug();
+      });
+      return b;
+    }));
+  }
+  function renderInsights() {
+    const box = $('insights'); if (!box) return;
+    const totals = dayTotals(), g = goal * 60000, now = Date.now();
+    const tms = totals[ymd(now)] || 0;
+
+    /* goal ring */
+    const gc = el('div', 'ins-card goal-card');
+    const C = 2 * Math.PI * 26;
+    const ring = svgEl('svg', { viewBox: '0 0 64 64', 'class': 'ring', 'aria-hidden': 'true' });
+    ring.append(svgEl('circle', { cx: 32, cy: 32, r: 26, 'class': 'ring-bg' }));
+    ring.append(svgEl('circle', { cx: 32, cy: 32, r: 26, 'class': 'ring-fg', 'stroke-dasharray': (C * Math.min(1, tms / g)) + ' ' + C, transform: 'rotate(-90 32 32)' }));
+    const info = el('div', 'goal-info');
+    info.append(el('div', 'ins-title', 'TODAY'), el('strong', '', hms(tms)), el('small', '', tms >= g ? 'Goal reached ✓' : Math.round(tms / g * 100) + '% of daily goal'));
+    const ge = el('label', 'goal-edit'); ge.append('Goal');
+    const gi = el('input'); gi.type = 'number'; gi.min = '5'; gi.max = '1440'; gi.step = '5'; gi.value = String(goal); gi.setAttribute('aria-label', 'Daily goal in minutes'); gi.inputMode = 'numeric';
+    gi.addEventListener('change', function () {
+      goal = Math.min(1440, Math.max(5, parseInt(gi.value, 10) || goal));
+      save(); renderInsights(); updateToday();
+    });
+    ge.append(gi, 'min');
+    gc.append(ring, info, ge);
+
+    /* last 7 days */
+    const days = [];
+    for (let i = 6; i >= 0; i--) { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i); days.push({ key: ymd(d.getTime()), label: d.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 2), ms: 0 }); }
+    days.forEach(function (d) { d.ms = totals[d.key] || 0; });
+    const max = Math.max.apply(null, days.map(function (d) { return d.ms; }).concat([g, 1]));
+    const wc = el('div', 'ins-card');
+    wc.append(el('div', 'ins-head')); wc.firstChild.append(el('span', 'ins-title', 'LAST 7 DAYS'));
+    const bars = el('div', 'wk-bars'), labels = el('div', 'wk-labels');
+    days.forEach(function (d, i) {
+      const b = el('div', 'wk-bar' + (i === 6 ? ' today-bar' : '') + (d.ms < 30000 ? ' empty' : ''));
+      b.style.height = (d.ms < 30000 ? 2 : Math.max(4, d.ms / max * 100)) + '%';
+      b.title = d.key + ' · ' + hms(d.ms);
+      bars.append(b);
+      const l = el('span', '', d.label); l.append(el('b', '', short(d.ms))); labels.append(l);
+    });
+    const gl = el('div', 'wk-goal'); gl.style.bottom = (g / max * 100) + '%'; bars.append(gl);
+    const wkTotal = days.reduce(function (a, d) { return a + d.ms; }, 0);
+    const active = days.filter(function (d) { return d.ms >= 30000; }).length;
+    wc.append(bars, labels, el('p', 'ins-note', wkTotal ? 'Total ' + hms(wkTotal) + ' · avg ' + short(active ? wkTotal / active : 0) + ' per active day · dashed line = goal' : 'No focus time yet this week.'));
+
+    /* tag stats */
+    const tc = el('div', 'ins-card');
+    const head = el('div', 'ins-head'); head.append(el('span', 'ins-title', 'TIME BY TAG'));
+    const rg = el('div', 'range'); rg.setAttribute('role', 'group'); rg.setAttribute('aria-label', 'Tag range');
+    [['7', '7D'], ['30', '30D'], ['all', 'ALL']].forEach(function (o) {
+      const b = el('button', '', o[1]); b.type = 'button'; b.setAttribute('aria-pressed', String(range === o[0]));
+      b.addEventListener('click', function () { range = o[0]; renderInsights(); });
+      rg.append(b);
+    });
+    head.append(rg); tc.append(head);
+    const cutoff = range === 'all' ? 0 : now - Number(range) * 86400000;
+    const tt = {};
+    allRuns().forEach(function (r) {
+      if (!r.start || r.start < cutoff) return;
+      (r.tags || []).forEach(function (t) { const k = t.toLowerCase(); if (!tt[k]) tt[k] = { label: t, ms: 0 }; tt[k].ms += r.total; });
+    });
+    const rows = Object.keys(tt).map(function (k) { return tt[k]; }).sort(function (a, b) { return b.ms - a.ms; }).slice(0, 6);
+    if (!rows.length) tc.append(el('p', 'ins-note', 'Add tags to a run to see where your time goes.'));
+    else {
+      rows.forEach(function (t) {
+        const row = el('div', 'tg-row'), track = el('div', 'tg-track'), bar = el('div', 'tg-bar');
+        bar.style.width = Math.max(3, t.ms / rows[0].ms * 100) + '%';
+        track.append(bar);
+        row.append(el('span', 'tg-name', t.label), track, el('span', 'tg-val', hms(t.ms)));
+        tc.append(row);
+      });
+      tc.append(el('p', 'ins-note', 'A run with several tags counts toward each one.'));
+    }
+    box.replaceChildren(gc, wc, tc);
+  }
   function allRuns() {
     const list = runs.slice();
     if (cur.status === 'running' || cur.status === 'paused') {
@@ -865,7 +1024,7 @@ button, input { font: inherit; color: inherit; }
     box.append(current, best);
   }
   function renderHistory() {
-    renderStreak();
+    renderStreak(); renderInsights();
     const list = allRuns().reverse();
     if (!list.length) {
       runsEl.replaceChildren(el('p', 'empty', 'No runs yet. Press Start, then Stop to save a run here. Use Log to mark sessions along the way.'));
@@ -953,7 +1112,7 @@ button, input { font: inherit; color: inherit; }
   nameEl.addEventListener('input', function () { cur.name = nameEl.value; save(); });
   tagsEl.addEventListener('input', function () {
     cur.tags = tagsEl.value.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 8);
-    save();
+    save(); renderTagSug();
   });
   nameEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') nameEl.blur(); });
   $('hist').addEventListener('click', function () { if (sheet.hidden) openSheet(); else closeSheet(); });
