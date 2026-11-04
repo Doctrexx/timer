@@ -288,7 +288,16 @@ body {
   .app::after,.center::before,.app[data-state="running"] #time,.run,.chart-bar { animation:none!important; }
 }
 
-</style></head><body>
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f3f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101512" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quiet Timer">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+</head><body>
 <title>Quiet Timer</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -494,7 +503,7 @@ button, input { font: inherit; color: inherit; }
 .wk-bars{position:relative;height:4.6rem;display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;align-items:end;border-bottom:1px solid var(--line)}
 .wk-bar{border-radius:.35rem .35rem 0 0;background:color-mix(in srgb,var(--accent) 45%,var(--line));min-height:2px}
 .wk-bar.today-bar{background:var(--accent)}
-.wk-bar.empty{background:var(--line);opacity:.6}
+.wk-bar.wk-zero{background:var(--line);opacity:.6}
 .wk-goal{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--accent) 60%,transparent);pointer-events:none}
 .wk-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-top:.35rem;text-align:center}
 .wk-labels span{display:block;font:.6rem var(--display);color:var(--mute)}
@@ -565,12 +574,24 @@ button, input { font: inherit; color: inherit; }
 @keyframes confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}60%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
 @media (prefers-reduced-motion:reduce){.cr *,.cr,.cheer .cr,.cf{animation:none!important}.cf{display:none}}
 </style>
+<style>
+.toast-act{margin-left:.8rem;background:transparent;border:0;padding:0;color:inherit;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.run-actions{display:flex;gap:.2rem;margin-top:.4rem;margin-left:-.9rem}
+.run-actions .link{padding:.35rem .9rem;font-size:.66rem}
+.run-actions .link.danger:hover{color:#c0392b}
+.run-edit{display:grid;gap:.5rem;margin:.55rem 0 .2rem}
+.run-edit label{display:grid;gap:.2rem;font-size:.6rem;font-weight:600;letter-spacing:.12em;color:var(--mute);text-transform:uppercase}
+.run-edit input{height:2.3rem;padding:0 .7rem;border:1px solid var(--line);border-radius:.7rem;background:var(--bg);color:var(--fg);font:.82rem var(--body)}
+.run-edit input:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
+.run-edit .row{display:flex;gap:.5rem;margin-top:.15rem}
+</style>
 <div class="shell">
 <main class="app" id="app" data-state="idle">
   <div class="top">
     <div class="utility-row">
       <span class="eyebrow">FOCUS • FLOW • FINISH</span>
       <div class="utility-actions">
+        <button class="utility-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Toggle clap sound">🔊 <span>Sound</span></button>
         <button class="utility-btn" id="buddyBtn" type="button" aria-pressed="true" aria-label="Toggle buddies">🐾 <span>Buddies</span></button>
         <button class="utility-btn" id="hist" type="button" aria-expanded="false">History <span id="histn"></span></button>
         <button class="utility-btn" id="fullscreen" type="button" aria-label="Enter fullscreen">⛶ <span id="fullLabel">Fullscreen</span></button>
@@ -686,6 +707,7 @@ button, input { font: inherit; color: inherit; }
   const KEY = 'quiet-timer-v1';
   let cur = T.fresh('');
   let runs = [];
+  let sound = true;    /* clap sound on/off */
   let buddies = true;  /* mascots on/off */
   let goal = 120;      /* daily goal, minutes */
   let range = '7';     /* tag stats range: '7' | '30' | 'all' */
@@ -704,11 +726,12 @@ button, input { font: inherit; color: inherit; }
       }
       if (d && Array.isArray(d.runs)) runs = d.runs;
       if (d && typeof d.buddies === 'boolean') buddies = d.buddies;
+      if (d && typeof d.sound === 'boolean') sound = d.sound;
       if (d && typeof d.goal === 'number' && d.goal >= 5) goal = Math.min(1440, d.goal);
     } catch (e) { /* storage unavailable */ }
   }
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs, goal: goal, buddies: buddies })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs, goal: goal, buddies: buddies, sound: sound })); } catch (e) { /* ignore */ }
   }
 
   const app = $('app'), timeEl = $('time'), hh = $('hh'), mm = $('mm'), ss = $('ss');
@@ -717,10 +740,16 @@ button, input { font: inherit; color: inherit; }
   const modesEl = $('modes'), mUp = $('mUp'), mDown = $('mDown'), setter = $('setter'), sH = $('sh'), sM = $('sm'), sS = $('sx');
 
   let toastTimer = null;
-  function toast(msg) {
-    toastEl.textContent = msg; toastEl.hidden = false;
+  function toast(msg, action) {
+    toastEl.replaceChildren(document.createTextNode(msg));
+    if (action) {
+      const b = el('button', 'toast-act', action.label); b.type = 'button';
+      b.addEventListener('click', function () { toastEl.hidden = true; action.fn(); });
+      toastEl.append(b);
+    }
+    toastEl.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 3200);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, action ? 6500 : 3200);
   }
 
   /* keep the screen on while timing; harmless if refused */
@@ -745,6 +774,47 @@ button, input { font: inherit; color: inherit; }
         o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.2);
       });
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (e) { /* ignore */ }
+  }
+
+  /* clap sound (soft, synthesised: no audio files) */
+  let actx = null;
+  function audio() {
+    try {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!actx) actx = new C();
+      if (actx.state === 'suspended') actx.resume();
+      return actx;
+    } catch (e) { return null; }
+  }
+  function clapSound(n) {
+    if (!sound) return;
+    const c = audio(); if (!c) return;
+    const len = Math.floor(c.sampleRate * 0.18), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+    for (let k = 0; k < n; k++) {
+      const t = c.currentTime + 0.05 + k * 0.22 + Math.random() * 0.03;
+      const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = buf; f.type = 'bandpass'; f.frequency.value = 1500 + Math.random() * 600; f.Q.value = 0.9;
+      g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      src.connect(f); f.connect(g); g.connect(c.destination); src.start(t);
+    }
+  }
+
+  /* "time's up" when the tab is in the background: system notification + tab title */
+  const BASE_TITLE = 'Quiet Timer';
+  let swReg = null;
+  function askNotify() {
+    try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* ignore */ }
+  }
+  function notifyDone(r) {
+    if (!document.hidden) return;
+    document.title = "⏰ Time's up · " + BASE_TITLE;
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const opts = { body: (r.name || 'Countdown') + ' · ' + hms(r.total), tag: 'quiet-timer-done', icon: 'icon-192.png', requireInteraction: false };
+      if (swReg && swReg.showNotification) swReg.showNotification("Time's up ⏰", opts);
+      else { const n = new Notification("Time's up ⏰", opts); n.onclick = function () { window.focus(); n.close(); }; }
     } catch (e) { /* ignore */ }
   }
 
@@ -778,7 +848,7 @@ button, input { font: inherit; color: inherit; }
     const h = pad(p.h), m = pad(p.m), s = pad(p.s);
     if (hh.textContent !== h) { hh.textContent = h; timeEl.style.setProperty('--chars', String(h.length + 6)); }
     if (mm.textContent !== m) mm.textContent = m;
-    if (ss.textContent !== s) { ss.textContent = s; updateToday(); if (!sheet.hidden) { updateLiveTotal(); if (s === '00') renderInsights(); } }
+    if (ss.textContent !== s) { ss.textContent = s; document.title = cur.status === 'running' ? (h + ':' + m + ':' + s + ' · ' + BASE_TITLE) : BASE_TITLE; updateToday(); if (!sheet.hidden) { updateLiveTotal(); if (s === '00') renderInsights(); } }
   }
 
   function mk(label, cls, fn, aria) {
@@ -828,6 +898,7 @@ button, input { font: inherit; color: inherit; }
     renderStatus();
     updateTime();
     updateToday(); renderTagSug(); buddySync();
+    if (cur.status !== 'running') document.title = BASE_TITLE;
     $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
     const live = cur.status === 'running' || cur.status === 'paused';
     modesEl.hidden = live;
@@ -869,6 +940,7 @@ button, input { font: inherit; color: inherit; }
 
   function doStart() {
     if (cur.mode === 'down' && (cur.status === 'idle' || cur.status === 'stopped') && cur.target < 1000) { toast('Set a time first.'); return; }
+    if (cur.mode === 'down') askNotify();
     cur = T.start(cur, Date.now()); save(); lock(); renderAll();
   }
   function doPause() { cur = T.pause(cur, Date.now()); save(); unlock(); renderAll(); }
@@ -884,9 +956,10 @@ button, input { font: inherit; color: inherit; }
     if (!r) return;
     clearTimeout(resetTimer); resetArmed = false;
     runs.push(r); save(); unlock(); renderAll();
-    if (auto === true) { beep(); toast("Time's up · " + hms(r.total)); }
+    if (auto === true) { beep(); notifyDone(r); toast("Time's up · " + hms(r.total)); }
     else toast('Saved · ' + hms(r.total));
     celebrate(true);
+    if (!buddies) document.title = BASE_TITLE;
   }
 
   /* ---- buddies: cute mascots ---- */
@@ -989,6 +1062,7 @@ button, input { font: inherit; color: inherit; }
       }
     }
     layer.append(box); cheerEl = box;
+    clapSound(big ? 5 : 2);
     cheerT = setTimeout(function () {
       box.classList.add('out');
       setTimeout(function () { box.remove(); if (cheerEl === box) cheerEl = null; }, 520);
@@ -1000,6 +1074,14 @@ button, input { font: inherit; color: inherit; }
     if (buddies) { toast('Buddies are on 🐾'); celebrate(false); }
     else { toast('Buddies are off'); layer.replaceChildren(); cheerEl = null; }
   });
+  const soundBtn = $('soundBtn');
+  function syncSoundBtn() { soundBtn.setAttribute('aria-pressed', String(sound)); soundBtn.firstChild.nodeValue = sound ? '🔊 ' : '🔇 '; }
+  soundBtn.addEventListener('click', function () {
+    sound = !sound; save(); syncSoundBtn();
+    toast(sound ? 'Clap sound on' : 'Clap sound off');
+    if (sound) clapSound(2);
+  });
+  syncSoundBtn();
   syncBuddyBtn();
 
   /* history */
@@ -1053,7 +1135,50 @@ button, input { font: inherit; color: inherit; }
     } else {
       a.append(el('p', 'run-none', 'No sessions logged'));
     }
+    if (!live) a.append(runActions(r, a));
     return a;
+  }
+  function parseTags(v) { return v.split(',').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 8); }
+  function runActions(r, art) {
+    const row = el('div', 'run-actions');
+    const ed = el('button', 'link', 'Edit'); ed.type = 'button';
+    const del = el('button', 'link danger', 'Delete'); del.type = 'button';
+    ed.addEventListener('click', function () { editRun(r, art); });
+    del.addEventListener('click', function () {
+      const i = runs.indexOf(r); if (i < 0) return;
+      runs.splice(i, 1); save(); renderHistory(); renderAll();
+      toast('Run deleted', { label: 'Undo', fn: function () { runs.splice(Math.min(i, runs.length), 0, r); save(); renderHistory(); renderAll(); } });
+    });
+    row.append(ed, del);
+    return row;
+  }
+  function editRun(r, art) {
+    const field = function (label, input) { const l = el('label', '', label); l.append(input); return l; };
+    const name = el('input'); name.type = 'text'; name.value = r.name || ''; name.maxLength = 80;
+    const tags = el('input'); tags.type = 'text'; tags.value = (r.tags || []).join(', ');
+    const mins = el('input'); mins.type = 'number'; mins.min = '1'; mins.max = '1440'; mins.step = '1'; mins.inputMode = 'numeric'; mins.value = String(Math.max(1, Math.round(r.total / 60000)));
+    const box = el('div', 'run-edit');
+    const btns = el('div', 'row');
+    const save1 = el('button', 'btn sm', 'Save'); save1.type = 'button';
+    const cancel = el('button', 'btn sm', 'Cancel'); cancel.type = 'button';
+    btns.append(save1, cancel);
+    box.append(field('Name', name), field('Tags (comma separated)', tags), field('Duration (minutes)', mins), btns);
+    const done = function () {
+      const m = parseFloat(mins.value);
+      if (!(m >= 1 && m <= 1440)) { toast('Duration must be 1–1440 minutes.'); return; }
+      r.name = name.value.trim() || 'Untitled';
+      r.tags = parseTags(tags.value);
+      r.total = Math.round(m * 60000);
+      save(); renderHistory(); renderAll(); toast('Run updated');
+    };
+    save1.addEventListener('click', done);
+    cancel.addEventListener('click', function () { renderHistory(); });
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); done(); }
+      if (e.key === 'Escape') { e.preventDefault(); renderHistory(); }
+    });
+    art.replaceChildren(box);
+    name.focus();
   }
   function updateLiveTotal() {
     const t = runsEl.querySelector('.live-total');
@@ -1135,7 +1260,7 @@ button, input { font: inherit; color: inherit; }
     wc.append(el('div', 'ins-head')); wc.firstChild.append(el('span', 'ins-title', 'LAST 7 DAYS'));
     const bars = el('div', 'wk-bars'), labels = el('div', 'wk-labels');
     days.forEach(function (d, i) {
-      const b = el('div', 'wk-bar' + (i === 6 ? ' today-bar' : '') + (d.ms < 30000 ? ' empty' : ''));
+      const b = el('div', 'wk-bar' + (i === 6 ? ' today-bar' : '') + (d.ms < 30000 ? ' wk-zero' : ''));
       b.style.height = (d.ms < 30000 ? 2 : Math.max(4, d.ms / max * 100)) + '%';
       b.title = d.key + ' · ' + hms(d.ms);
       bars.append(b);
@@ -1344,8 +1469,12 @@ button, input { font: inherit; color: inherit; }
     if (cur.status === 'running') doPause(); else doStart();
   });
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') { updateTime(); if (cur.status === 'running') lock(); }
+    if (document.visibilityState === 'visible') { document.title = BASE_TITLE; updateTime(); if (cur.status === 'running') lock(); }
   });
+
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('sw.js').then(function (reg) { swReg = reg; }).catch(function () { /* offline mode unavailable */ });
+  }
 
   load();
   nameEl.value = cur.name || '';
