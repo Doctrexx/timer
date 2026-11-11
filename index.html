@@ -252,7 +252,7 @@ body {
 .chart-row { display:grid; grid-template-columns:1.6rem minmax(2rem,1fr) 4.6rem; align-items:center; gap:.55rem; margin:.45rem 0; }
 .chart-label { color:var(--mute); font: .65rem var(--display); }
 .chart-track { height:.48rem; border-radius:999px; overflow:hidden; background:var(--line); }
-.chart-bar { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#d4c99b)); transform-origin:left; animation:bar-arrive .75s cubic-bezier(.2,.8,.2,1) both; }
+.chart-bar { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#d4c99b)); transform-origin:left; animation:bar-arrive .75s cubic-bezier(.2,.8,.2,1) backwards; }
 .chart-value { color:var(--mute); text-align:right; font: .62rem var(--display); }
 .gap-note { color:var(--mute); opacity:.8; font-size:.58rem; padding-left:2.2rem; margin:-.1rem 0 .25rem; }
 .streak-overview { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; padding:0 0 1rem; border-bottom:1px solid var(--line); }
@@ -590,6 +590,14 @@ button, input { font: inherit; color: inherit; }
 .run-paused{margin:-.25rem 0 .5rem;font-size:.78rem;color:var(--mute)}
 .run-paused b{font-weight:600;color:var(--fg)}
 .recover{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-top:.6rem;padding:.6rem .9rem;max-width:30rem;border:1px dashed color-mix(in srgb,var(--accent) 55%,var(--line));border-radius:1rem;font-size:.74rem;color:var(--mute)}
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .chart-bar,.tg-bar{background:var(--accent)}
+  .wk-bar{background:var(--accent);opacity:.6}
+  .wk-bar.today-bar{opacity:1}
+  .wk-bar.wk-zero{background:var(--line);opacity:.6}
+  .ins-card,.session-chart{background:var(--surface)}
+  .recover{border-color:var(--line)}
+}
 .recover b{color:var(--fg);font-weight:600}
 .recover .btn{min-height:2.2rem;padding:0 .9rem;font-size:.72rem}
 </style>
@@ -1246,8 +1254,8 @@ button, input { font: inherit; color: inherit; }
         row.append(label, track, value);
         chart.append(row);
         if (idx > 0) {
-          const gapMs = Math.max(0, session.at - r.sessions[idx - 1].at - r.sessions[idx - 1].ms);
-          chart.append(el('div', 'gap-note', '↳ ' + hms(gapMs) + ' between logs'));
+          const gapMs = Math.max(0, session.at - r.sessions[idx - 1].at - session.ms); /* wall time between logs minus focus time = paused */
+          if (gapMs >= 1000) chart.append(el('div', 'gap-note', '↳ ' + human(gapMs) + ' paused before this log'));
         }
       });
       a.append(chart);
@@ -1380,12 +1388,12 @@ button, input { font: inherit; color: inherit; }
     const bars = el('div', 'wk-bars'), labels = el('div', 'wk-labels');
     days.forEach(function (d, i) {
       const b = el('div', 'wk-bar' + (i === 6 ? ' today-bar' : '') + (d.ms < 30000 ? ' wk-zero' : ''));
-      b.style.height = (d.ms < 30000 ? 2 : Math.max(4, d.ms / max * 100)) + '%';
+      b.style.height = 'calc(4.6rem * ' + (d.ms < 30000 ? 0.03 : Math.max(0.05, d.ms / max)).toFixed(4) + ')';
       b.title = d.key + ' · ' + hms(d.ms);
       bars.append(b);
       const l = el('span', '', d.label); l.append(el('b', '', short(d.ms))); labels.append(l);
     });
-    const gl = el('div', 'wk-goal'); gl.style.bottom = (g / max * 100) + '%'; bars.append(gl);
+    const gl = el('div', 'wk-goal'); gl.style.bottom = 'calc(4.6rem * ' + (g / max).toFixed(4) + ')'; bars.append(gl);
     const wkTotal = days.reduce(function (a, d) { return a + d.ms; }, 0);
     const active = days.filter(function (d) { return d.ms >= 30000; }).length;
     wc.append(bars, labels, el('p', 'ins-note', wkTotal ? 'Total ' + hms(wkTotal) + ' · avg ' + short(active ? wkTotal / active : 0) + ' per active day · dashed line = goal' : 'No focus time yet this week.'));
