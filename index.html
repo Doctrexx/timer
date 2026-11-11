@@ -589,6 +589,9 @@ button, input { font: inherit; color: inherit; }
 .break-note{font-family:var(--display);font-size:.72rem;color:var(--mute);font-variant-numeric:tabular-nums;margin-top:.15rem}
 .run-paused{margin:-.25rem 0 .5rem;font-size:.78rem;color:var(--mute)}
 .run-paused b{font-weight:600;color:var(--fg)}
+.recover{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-top:.6rem;padding:.6rem .9rem;max-width:30rem;border:1px dashed color-mix(in srgb,var(--accent) 55%,var(--line));border-radius:1rem;font-size:.74rem;color:var(--mute)}
+.recover b{color:var(--fg);font-weight:600}
+.recover .btn{min-height:2.2rem;padding:0 .9rem;font-size:.72rem}
 </style>
 <div class="shell">
 <main class="app" id="app" data-state="idle">
@@ -620,6 +623,7 @@ button, input { font: inherit; color: inherit; }
     <div class="status"><span class="dot" aria-hidden="true"></span><span id="status">Ready</span></div>
     <div class="last" id="last" hidden></div>
     <div class="break-note" id="breakNote" hidden></div>
+    <div class="recover" id="recover" hidden></div>
     <div class="today" id="today"></div>
     <div class="setter" id="setter" hidden>
       <label><input id="sh" type="number" min="0" max="99" inputmode="numeric" aria-label="Hours">h</label>
@@ -710,6 +714,22 @@ button, input { font: inherit; color: inherit; }
   const hrs = function (ms) { return (ms / 3600000).toFixed(2); };
   const clock = function (t) { const d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); };
   const ymd = function (t) { const d = new Date(t); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  /* a stopped copy of a live timer; the freeze itself does not count as a pause */
+  T.freeze = function (c, now) {
+    const t = Object.assign({}, c, { tags: c.tags.slice(), sessions: c.sessions.map(function (x) { return Object.assign({}, x); }) });
+    if (t.status === 'running') { t.acc = T.elapsed(c, now); t.since = null; t.status = 'paused'; t.pausedAt = null; }
+    else if (t.status === 'paused' && t.pausedAt !== null) { t.pausedMs += Math.max(0, now - t.pausedAt); t.pausedAt = now; }
+    return t;
+  };
+  /* bring a frozen timer back, paused, so the user decides when to resume */
+  T.thaw = function (frozen, now) {
+    const t = Object.assign({}, frozen, { tags: frozen.tags.slice(), sessions: frozen.sessions.map(function (x) { return Object.assign({}, x); }) });
+    if (t.pausedAt === null) t.pauses += 1;
+    t.pausedAt = now; t.since = null; t.status = 'paused';
+    return t;
+  };
+  const logsText = function (n) { return n ? ' · ' + n + (n === 1 ? ' log' : ' logs') : ''; };
+
   /* friendly length: 42 s, 6 min 12 s, 1 h 05 min */
   const human = function (ms) {
     const s = Math.round(Math.max(0, ms) / 1000);
@@ -746,6 +766,7 @@ button, input { font: inherit; color: inherit; }
   let runs = [];
   let sound = true;    /* clap sound on/off */
   let buddies = true;  /* mascots on/off */
+  let discarded = null; /* last session thrown away with Reset: { timer, at } */
   let goal = 120;      /* daily goal, minutes */
   let range = '7';     /* tag stats range: '7' | '30' | 'all' */
 
@@ -768,14 +789,17 @@ button, input { font: inherit; color: inherit; }
       if (d && typeof d.buddies === 'boolean') buddies = d.buddies;
       if (d && typeof d.sound === 'boolean') sound = d.sound;
       if (d && typeof d.goal === 'number' && d.goal >= 5) goal = Math.min(1440, d.goal);
+      if (d && d.discarded && typeof d.discarded.at === 'number' && d.discarded.timer && typeof d.discarded.timer.status === 'string') {
+        discarded = { at: d.discarded.at, timer: Object.assign(T.fresh(''), d.discarded.timer) };
+      }
     } catch (e) { /* storage unavailable */ }
   }
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs, goal: goal, buddies: buddies, sound: sound })); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ cur: cur, runs: runs, goal: goal, buddies: buddies, sound: sound, discarded: discarded })); } catch (e) { /* ignore */ }
   }
 
   const app = $('app'), timeEl = $('time'), hh = $('hh'), mm = $('mm'), ss = $('ss');
-  const statusEl = $('status'), lastEl = $('last'), breakEl = $('breakNote'), controls = $('controls'), nameEl = $('name'), tagsEl = $('tags');
+  const statusEl = $('status'), lastEl = $('last'), breakEl = $('breakNote'), recoverEl = $('recover'), controls = $('controls'), nameEl = $('name'), tagsEl = $('tags');
   const sheet = $('sheet'), runsEl = $('runs'), xl = $('xl'), toastEl = $('toast');
   const modesEl = $('modes'), mUp = $('mUp'), mDown = $('mDown'), setter = $('setter'), sH = $('sh'), sM = $('sm'), sS = $('sx');
 
@@ -915,7 +939,7 @@ button, input { font: inherit; color: inherit; }
       if (st === 'stopped') kids.push(mk('Reset', '', doReset));
     } else {
       kids.push(st === 'paused' ? mk('Resume', 'primary', doStart) : mk('Pause', '', doPause));
-      kids.push(mk('Stop', '', function () { doStop(); }));
+      kids.push(mk('End session', '', function () { doStop(); }, 'End session and save it to history'));
       const n = cur.sessions.length;
       const lg = mk('Log', '', doLog, 'Log session ' + (n + 1));
       if (n) lg.append(el('span', 'count', String(n)));
@@ -941,12 +965,25 @@ button, input { font: inherit; color: inherit; }
     renderBreakNote();
   }
 
+  /* the safety net after Reset: save the discarded session, bring it back, or let it go */
+  function renderRecover() {
+    recoverEl.hidden = !discarded;
+    if (!discarded) return;
+    const logs = discarded.timer.sessions.length, live = cur.status === 'running' || cur.status === 'paused';
+    const text = el('span', '', 'Discarded session ');
+    text.append(el('b', '', hms(T.elapsed(discarded.timer, discarded.at))), logs ? ' · ' + logs + (logs === 1 ? ' log' : ' logs') : '');
+    const b = function (label, cls, fn) { const x = el('button', 'btn sm' + cls, label); x.type = 'button'; x.addEventListener('click', fn); return x; };
+    recoverEl.replaceChildren(text, b('Save it', ' primary', saveDiscarded));
+    if (!live) recoverEl.append(b('Restore', '', restoreDiscarded));
+    recoverEl.append(b('Dismiss', '', dismissDiscarded));
+  }
+
   function renderAll() {
     app.dataset.state = cur.status;
     renderControls();
     renderStatus();
     updateTime();
-    updateToday(); renderTagSug(); buddySync();
+    updateToday(); renderTagSug(); buddySync(); renderRecover();
     if (cur.status !== 'running') document.title = BASE_TITLE;
     $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
     const live = cur.status === 'running' || cur.status === 'paused';
@@ -978,14 +1015,40 @@ button, input { font: inherit; color: inherit; }
     if (live && !resetArmed) {
       resetArmed = true; renderControls();
       resetTimer = setTimeout(function () { resetArmed = false; renderControls(); }, 3000);
-      toast('Tap Reset again to discard this run.');
+      toast('Tap Reset again to discard this run. End session saves it instead.');
       return;
     }
     clearTimeout(resetTimer); resetArmed = false; unlock();
+    const now = Date.now();
+    /* never lose work silently: keep a copy of what is being discarded */
+    const hadWork = live && (T.elapsed(cur, now) >= 1000 || cur.sessions.length > 0);
+    if (hadWork) discarded = { timer: T.freeze(cur, now), at: now };
     const keepTags = (cur.tags || []).slice();
     cur = T.fresh(cur.name, cur.mode, cur.target); cur.tags = keepTags;
-    save(); renderAll(); toast('Timer reset.');
+    save(); renderAll();
+    if (hadWork) toast('Session discarded', { label: 'Undo', fn: restoreDiscarded });
+    else toast('Timer reset.');
   }
+
+  /* bring the discarded session back, paused */
+  function restoreDiscarded() {
+    if (!discarded) return;
+    if (cur.status === 'running' || cur.status === 'paused') { toast('End the current session first.'); return; }
+    cur = T.thaw(discarded.timer, Date.now()); discarded = null;
+    nameEl.value = cur.name || ''; tagsEl.value = (cur.tags || []).join(', ');
+    syncSetter(); save(); renderAll();
+    toast('Session restored. Press Resume to continue.');
+  }
+  /* turn the discarded session into a saved run in History */
+  function saveDiscarded() {
+    if (!discarded) return;
+    const r = T.stop(discarded.timer, discarded.at);
+    discarded = null;
+    if (r) runs.push(r);
+    save(); renderAll();
+    if (r) toast('Saved · ' + hms(r.total) + logsText(r.sessions.length));
+  }
+  function dismissDiscarded() { discarded = null; save(); renderAll(); }
 
   function doStart() {
     if (cur.mode === 'down' && (cur.status === 'idle' || cur.status === 'stopped') && cur.target < 1000) { toast('Set a time first.'); return; }
@@ -1007,8 +1070,8 @@ button, input { font: inherit; color: inherit; }
     if (!r) return;
     clearTimeout(resetTimer); resetArmed = false;
     runs.push(r); save(); unlock(); renderAll();
-    if (auto === true) { beep(); notifyDone(r); toast("Time's up · " + hms(r.total) + (r.paused ? ' · paused ' + human(r.paused) : '')); }
-    else toast('Saved · ' + hms(r.total) + (r.paused ? ' · paused ' + human(r.paused) : ''));
+    if (auto === true) { beep(); notifyDone(r); toast("Time's up · " + hms(r.total) + logsText(r.sessions.length) + ((r.paused || 0) >= 1000 ? ' · paused ' + human(r.paused) : '')); }
+    else toast('Session ended · saved ' + hms(r.total) + logsText(r.sessions.length) + ((r.paused || 0) >= 1000 ? ' · paused ' + human(r.paused) : ''));
     celebrate(true);
     if (!buddies) document.title = BASE_TITLE;
   }
