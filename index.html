@@ -2568,4 +2568,157 @@ button, input { font: inherit; color: inherit; }
 })();
 </script>
 
+
+<style id="ipad-responsive-overrides">
+/* iPad / medium-tablet layout (including 13-inch iPad Pro portrait). */
+@media (min-width: 761px) and (max-width: 1199px) {
+  .shell {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .app {
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+    padding: clamp(1.25rem, 2.8vw, 2.5rem)
+             max(1.5rem, env(safe-area-inset-right, 0px))
+             max(1.25rem, env(safe-area-inset-bottom, 0px))
+             max(1.5rem, env(safe-area-inset-left, 0px));
+  }
+
+  .top {
+    width: min(100%, 58rem);
+    margin-inline: auto;
+    gap: clamp(.55rem, 1.2vh, 1rem);
+  }
+
+  .utility-row {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .utility-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: .5rem;
+  }
+
+  .tag-editor {
+    width: min(100%, 36rem);
+  }
+
+  .tag-editor input {
+    flex: 1 1 15rem;
+    width: auto;
+    min-width: 10rem;
+  }
+
+  .center {
+    width: 100%;
+    min-width: 0;
+    flex: 1 0 auto;
+    padding-block: clamp(.75rem, 2vh, 1.75rem);
+  }
+
+  .center::before,
+  .ring-clock {
+    width: min(68cqw, 34rem, 66dvh);
+    max-width: 100%;
+  }
+
+  #time {
+    max-width: 100%;
+    font-size: min(calc(142cqw / var(--chars)), 32dvh, 22rem);
+  }
+
+  .controls {
+    width: min(100%, 58rem);
+    margin: 1rem auto 0;
+    gap: .65rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .controls .btn {
+    min-height: 2.9rem;
+    padding-inline: clamp(1rem, 1.8vw, 1.5rem);
+  }
+
+  /* A drawer avoids squeezing the timer column in portrait and split-screen layouts. */
+  .sheet {
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(34rem, 46vw);
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-left: 1px solid var(--line);
+    border-radius: 1.25rem 0 0 1.25rem;
+    padding-top: max(1rem, env(safe-area-inset-top, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    box-shadow: -16px 0 42px rgba(0,0,0,.18);
+    overscroll-behavior: contain;
+  }
+
+  .sheet-body {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Finger-friendly controls and safe-area handling on iPadOS. */
+@media (pointer: coarse) and (min-width: 761px) {
+  .utility-btn,
+  .btn,
+  .btn.sm,
+  .link,
+  .modes button,
+  .range button,
+  .rn-toggle {
+    min-height: 2.75rem;
+  }
+
+  .utility-btn,
+  .btn,
+  .btn.sm,
+  .modes button,
+  .range button {
+    padding-inline: 1rem;
+  }
+
+  .setter input,
+  .tag-editor input,
+  #name,
+  .run-edit input,
+  .goal-edit input {
+    font-size: 16px; /* Prevents iPad Safari from zooming when an input receives focus. */
+  }
+
+  button,
+  .link,
+  input {
+    touch-action: manipulation;
+  }
+}
+
+/* Keep compact split-screen and landscape windows usable without clipping. */
+@media (min-width: 761px) and (max-height: 900px) {
+  .app { padding-block: max(.75rem, env(safe-area-inset-top, 0px)); }
+  .top { gap: .45rem; }
+  .center { padding-block: .5rem; }
+  #time { font-size: min(calc(132cqw / var(--chars)), 34dvh, 21rem); }
+}
+</style>
+
 </body></html>
