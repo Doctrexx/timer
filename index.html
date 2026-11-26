@@ -533,9 +533,8 @@ button, input { font: inherit; color: inherit; }
 @media (prefers-reduced-motion:reduce){.rc-prog,.rc-track{transition:none}}
 </style>
 <style>
-/* The little world: a pastel landscape, a long walk toward a goal, and townsfolk who gossip */
+/* The long walk: a pastel landscape, a path that grows every second, and a walker who never stops */
 .utility-actions{flex-wrap:wrap;justify-content:flex-end}
-.utility-btn[aria-pressed="false"]{opacity:.55}
 :root{--world-h:0px;--w-sky:#E6EDE6;--w-h1:#CCD8C2;--w-h2:#BCCBB5;--w-ground:#E7DDC9;--w-road:#F1E8D7;--w-edge:#D6CAB4;--w-tile:#CDBFA6;--w-tuft:#AEBE9E}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--w-sky:#2B3430;--w-h1:#3A4A40;--w-h2:#33423A;--w-ground:#3A4038;--w-road:#4D5046;--w-edge:#5B5D51;--w-tile:#5E6054;--w-tuft:#4D5F4C}}
 :root[data-theme="dark"]{--w-sky:#2B3430;--w-h1:#3A4A40;--w-h2:#33423A;--w-ground:#3A4038;--w-road:#4D5046;--w-edge:#5B5D51;--w-tile:#5E6054;--w-tuft:#4D5F4C}
@@ -555,83 +554,6 @@ button, input { font: inherit; color: inherit; }
 .w-tile{width:var(--tw,40px);height:16px;border-radius:7px;background:var(--w-tile);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
 .w-tuft{width:24px;height:18px;border-radius:50% 50% 44% 44%;background:var(--w-tuft)}
 .world.still .w-tile,.world.still .w-tuft{animation-play-state:paused}
-/* people */
-.tw{position:absolute;pointer-events:auto;cursor:pointer;aspect-ratio:80/90;transition-property:left,bottom,width;transition-timing-function:ease-in-out;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.tw.enter{animation:bd-in .7s cubic-bezier(.2,1.4,.4,1) backwards}
-.tw.drive,.sc-f.drive{animation:sc-drive 4.6s ease-in-out infinite alternate}
-.tw-in{width:100%;height:100%}
-.tw-in.flip .bdv{transform:scaleX(-1)}
-.tw-in.jump,.wk-in.jump{animation:bd-jump .6s ease-out}
-.sc{position:absolute;pointer-events:none;transition:opacity .5s}
-.sc.gone{opacity:0}
-.bdv{width:100%;height:100%;display:block;overflow:visible}
-.bdv .p{display:none}
-.bdv .b-eyes{transform-origin:40px 35px;animation:bd-blink 4.8s infinite;animation-delay:var(--bl,0s)}
-.bdv .b-body{transform-origin:40px 82px;animation:bd-breathe 3.4s ease-in-out infinite}
-.bdv .b-tail{animation:bd-wag 1.4s ease-in-out infinite alternate}
-.bdv .b-led{animation:bd-led 1.6s steps(2) infinite}
-.bdv .b-head{transform-origin:40px 50px}
-.bdv .b-all{transform-origin:40px 88px}
-.bdv .b-arm.L{transform-origin:27px 56px}
-.bdv .b-arm.R{transform-origin:53px 56px}
-.bdv text,.bdv .p-stars polygon,.bdv .p-heart path{transform-box:fill-box;transform-origin:center}
-.bdv .b-ear{transform-box:fill-box;transform-origin:50% 100%}
-/* what they are doing */
-.a-read .p-book{display:inline}
-.a-read .b-arm.L{transform:rotate(-28deg)}
-.a-read .b-arm.R{transform:rotate(28deg)}
-.a-read .b-head{transform:translateY(2px) rotate(2deg)}
-.a-read .b-page{animation:bd-page 4.5s ease-in-out infinite}
-.a-sip .p-cup{display:inline}
-.a-sip .b-arm.R{animation:bd-sip 5s ease-in-out infinite}
-.a-walk .b-foot.L{animation:bd-stepL .42s ease-in-out infinite}
-.a-walk .b-foot.R{animation:bd-stepL .42s ease-in-out .21s infinite}
-.a-walk .b-all{animation:bd-walkbob .42s ease-in-out infinite}
-.a-walk .b-arm.L{animation:bd-swing .84s ease-in-out infinite}
-.a-walk .b-arm.R{animation:bd-swing .84s ease-in-out .42s infinite}
-.a-chat .b-head{animation:bd-nod 1.2s ease-in-out infinite}
-.a-chat .b-arm.R{animation:bd-gest 1.8s ease-in-out infinite}
-.a-dig .b-arm.L{animation:bd-digL .9s ease-in-out infinite}
-.a-dig .b-arm.R{animation:bd-digR .9s ease-in-out infinite}
-.a-dig .b-all{animation:bd-walkbob .9s ease-in-out infinite}
-.a-drive .b-arm.L{transform:rotate(-58deg)}
-.a-drive .b-arm.R{transform:rotate(58deg)}
-.a-drive .b-all{animation:bd-shake .35s linear infinite}
-.a-fish .b-arm.R{transform:rotate(-105deg)}
-.a-fish .b-arm.L{transform:rotate(-55deg)}
-.a-fish .b-head{animation:bd-turn 5s ease-in-out infinite}
-.a-paint .b-arm.R{animation:bd-paint 1.4s ease-in-out infinite}
-.a-paint .b-arm.L{transform:rotate(-45deg)}
-.a-water .b-arm.R{transform:rotate(-70deg)}
-.a-camp .b-arm.R{transform:rotate(-112deg)}
-.a-camp .b-head{animation:bd-turn 6s ease-in-out infinite}
-.a-clap .b-arm.L{animation:bd-clapL .4s ease-in-out infinite alternate}
-.a-clap .b-arm.R{animation:bd-clapR .4s ease-in-out infinite alternate}
-.a-clap .b-all{animation:bd-cheer .4s ease-in-out infinite alternate}
-.a-clap .p-stars{display:inline}
-.a-clap .p-stars polygon{animation:bd-star 1.2s ease-in-out infinite}
-.a-look .b-look{animation:bd-look 4s ease-in-out infinite}
-.hearts .p-heart{display:inline}
-.hearts .p-heart path{animation:bd-heart 1.2s ease-out}
-/* scene props */
-.sc svg *{transform-box:view-box}
-.crop,.fl{animation:sc-sway 3s ease-in-out infinite alternate}
-.hoe{animation:sc-hoe .9s ease-in-out infinite}
-.whl{animation:sc-spin .5s linear infinite}
-.rd{animation:sc-road .6s linear infinite}
-.puff,.steam,.leaf,.rip,.bob,.spark,.drop,.can{transform-box:fill-box;transform-origin:center}
-.puff{animation:sc-puff 1.4s ease-out infinite}
-.puff.p2{animation-delay:.7s}
-.steam{animation:sc-steam 2.4s ease-in-out infinite}
-.leaf{animation:sc-leaf 5s ease-in infinite}
-.rip{animation:sc-rip 2.6s ease-out infinite}
-.bob{animation:sc-bob 1.8s ease-in-out infinite}
-.pt{stroke-dasharray:1;animation:sc-draw 5s ease-in-out infinite}
-.pt.p2{animation-delay:1.2s}
-.can{animation:sc-can 2.6s ease-in-out infinite}
-.drop{animation:sc-drop 1s linear infinite}
-.fire{animation:sc-fire .5s ease-in-out infinite alternate}
-.spark{animation:sc-spark 1.6s ease-out infinite}
 /* the walker: seen from behind, tired but never stopping */
 .w-walker{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);pointer-events:auto;cursor:pointer;--stride:1s;--lean:0deg;--hang:0deg;--drop:0px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .wk-in{width:100%}
@@ -665,55 +587,10 @@ button, input { font: inherit; color: inherit; }
 /* speech bubbles */
 .bd-say{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);width:max-content;max-width:8.5rem;background:var(--fg);color:var(--bg);font:600 .66rem/1.25 var(--body);padding:.35rem .65rem;border-radius:.9rem;pointer-events:none;z-index:2;text-align:center;animation:bd-say .3s ease backwards}
 .bd-say::after{content:"";position:absolute;top:100%;left:50%;margin-left:-4px;width:9px;height:6px;background:inherit;clip-path:polygon(0 0,100% 0,50% 100%)}
-/* the celebration after End session / Log */
-.cheer{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:flex-end;gap:.5rem;z-index:9;pointer-events:none}
-.cheer.out{opacity:0;transition:opacity .5s}
-.cr{position:relative;width:84px;aspect-ratio:80/90;animation:pop .55s cubic-bezier(.2,1.5,.4,1) var(--d,0ms) backwards}
-.cr-say{position:absolute;bottom:calc(100% + .3rem);left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--fg);color:var(--bg);font:600 .72rem var(--body);padding:.35rem .75rem;border-radius:999px;animation:say .4s ease .35s backwards}
-.cf{position:absolute;left:50%;bottom:55px;width:7px;height:11px;border-radius:2px;opacity:0;animation:confetti 1.5s ease-out var(--cd,0ms) forwards}
 @keyframes w-hit{0%,100%{filter:none}30%{filter:drop-shadow(0 0 10px #EEDCA6) brightness(1.08)}}
 @keyframes w-flag{from{transform:scaleX(1)}to{transform:scaleX(.7) skewY(-6deg)}}
-@keyframes bd-in{from{opacity:0;transform:translateY(34px) scale(.6)}}
 @keyframes bd-jump{0%{transform:translateY(0)}35%{transform:translateY(-14px) scale(1.05,.95)}70%{transform:translateY(0) scale(.97,1.04)}100%{transform:none}}
-@keyframes bd-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
-@keyframes bd-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
-@keyframes bd-wag{from{transform:rotate(-12deg)}to{transform:rotate(14deg)}}
-@keyframes bd-look{0%,100%{transform:translateX(0)}20%{transform:translateX(-2.6px)}50%{transform:translateX(2.6px)}75%{transform:translate(0,-1.5px)}}
-@keyframes bd-turn{0%,100%{transform:rotate(0)}25%{transform:rotate(-4deg)}55%{transform:rotate(4deg)}}
-@keyframes bd-page{0%,70%,100%{transform:scaleX(1)}85%{transform:scaleX(-1)}}
-@keyframes bd-sip{0%,12%,80%,100%{transform:rotate(0)}32%,58%{transform:rotate(102deg)}}
-@keyframes bd-stepL{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes bd-walkbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@keyframes bd-swing{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
-@keyframes bd-nod{0%,100%{transform:rotate(0)}30%{transform:rotate(4deg)}60%{transform:rotate(-3deg)}}
-@keyframes bd-gest{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(-80deg)}}
-@keyframes bd-digL{0%,100%{transform:rotate(150deg)}55%{transform:rotate(15deg)}}
-@keyframes bd-digR{0%,100%{transform:rotate(-150deg)}55%{transform:rotate(-15deg)}}
-@keyframes bd-shake{0%,100%{transform:translateX(0)}50%{transform:translateX(.6px)}}
-@keyframes bd-paint{0%,100%{transform:rotate(-100deg)}50%{transform:rotate(-72deg)}}
-@keyframes bd-clapL{from{transform:rotate(-18deg)}to{transform:rotate(-62deg)}}
-@keyframes bd-clapR{from{transform:rotate(18deg)}to{transform:rotate(62deg)}}
-@keyframes bd-cheer{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-@keyframes bd-star{0%,100%{opacity:0;transform:scale(.2)}50%{opacity:1;transform:scale(1.15)}}
-@keyframes bd-heart{0%{opacity:0;transform:translateY(8px) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translateY(-22px) scale(1)}}
-@keyframes bd-led{50%{opacity:.25}}
-@keyframes bd-zz{0%{opacity:0;transform:translate(0,4px)}30%{opacity:1}100%{opacity:0;transform:translate(5px,-9px)}}
 @keyframes bd-say{from{opacity:0;transform:translate(-50%,4px)}}
-@keyframes sc-sway{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
-@keyframes sc-hoe{0%,100%{transform:rotate(-22deg)}55%{transform:rotate(30deg)}}
-@keyframes sc-spin{to{transform:rotate(360deg)}}
-@keyframes sc-road{to{stroke-dashoffset:-16}}
-@keyframes sc-puff{0%{opacity:.8;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-14px,-6px) scale(1.6)}}
-@keyframes sc-steam{0%,100%{opacity:.2;transform:translateY(2px)}50%{opacity:.9;transform:translateY(-3px)}}
-@keyframes sc-leaf{0%{opacity:0;transform:translate(0,0) rotate(30deg)}15%{opacity:1}100%{opacity:0;transform:translate(8px,34px) rotate(200deg)}}
-@keyframes sc-rip{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(2.2)}}
-@keyframes sc-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
-@keyframes sc-draw{0%{stroke-dashoffset:1}55%,100%{stroke-dashoffset:0}}
-@keyframes sc-can{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
-@keyframes sc-drop{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(12px)}}
-@keyframes sc-fire{from{transform:scale(1,.92)}to{transform:scale(.94,1.08)}}
-@keyframes sc-spark{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}100%{opacity:0;transform:translate(6px,-14px)}}
-@keyframes sc-drive{from{transform:translateX(-16px)}to{transform:translateX(16px)}}
 @keyframes wk-legL{0%,100%{transform:translateY(0)}25%{transform:translateY(-4px) rotate(-4deg)}50%{transform:translateY(0)}75%{transform:translateY(1px)}}
 @keyframes wk-legR{0%,100%{transform:translateY(0)}25%{transform:translateY(1px)}50%{transform:translateY(0)}75%{transform:translateY(-4px) rotate(4deg)}}
 @keyframes wk-armL{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-14deg)}}
@@ -724,14 +601,12 @@ button, input { font: inherit; color: inherit; }
 @keyframes wk-puff{0%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:translate(0,-4px) scale(1.8)}}
 @keyframes wk-breathe{0%,100%{transform:rotate(var(--lean)) scaleY(1)}50%{transform:rotate(var(--lean)) scaleY(1.03)}}
 @keyframes wk-cheer{from{transform:translateY(0)}to{transform:translateY(-4px)}}
-@keyframes pop{from{transform:translateY(60px) scale(.4);opacity:0}}
-@keyframes say{from{opacity:0;transform:translate(-50%,6px)}}
-@keyframes confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}60%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
-@media (prefers-reduced-motion:reduce){.world *,.tw,.tw *,.cr,.cr *,.cf,.w-walker *{animation:none!important}.cf{display:none}}
+.wk-in.jump{animation:bd-jump .6s ease-out}
+@media (prefers-reduced-motion:reduce){.world *{animation:none!important}}
 
 /* leave room for the world: under the dock on phones, under the content on laptops */
 @media (max-width:760px) and (min-height:521px){.bd-on .controls{padding-bottom:calc(max(.8rem,env(safe-area-inset-bottom,0px)) + var(--world-h))}}
-@media (min-width:761px){.bd-on .app{padding-bottom:calc(.6rem + var(--world-h))}.bd-on .controls{position:sticky;bottom:.3rem;z-index:6;padding:.5rem 0}}
+@media (min-width:761px){.bd-on .app{padding-bottom:calc(.6rem + var(--world-h))}.bd-on .controls{position:sticky;bottom:.3rem;z-index:6;padding:.95rem 0 .5rem}}
 </style>
 <style>
 .toast-act{margin-left:.8rem;background:transparent;border:0;padding:0;color:inherit;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
@@ -827,9 +702,6 @@ button, input { font: inherit; color: inherit; }
 /* ── Phone layout: compact header with a More menu, a bottom control dock, History as a bottom sheet ── */
 .stage{display:contents}
 .stage::before{content:none}
-#moreBtn{display:none}
-.more-panel{display:contents}
-#soundBtn{order:1}#buddyBtn{order:2}#hist{order:3}#fullscreen{order:4}
 @media (max-width:760px) and (min-height:521px){
   .app{padding-top:max(.7rem,env(safe-area-inset-top,0px));padding-bottom:0}
   .top::before{display:none}
@@ -837,10 +709,6 @@ button, input { font: inherit; color: inherit; }
   .utility-row{flex-wrap:nowrap;justify-content:space-between;align-items:center}
   .eyebrow{display:block;padding-top:0;font-size:.55rem;white-space:nowrap}
   .utility-actions{position:relative;flex-wrap:nowrap;width:auto;justify-content:flex-end;margin-left:auto}
-  #moreBtn{display:inline-flex}
-  .more-panel{display:none;position:absolute;top:calc(100% + .45rem);right:0;z-index:30;min-width:12rem;padding:.5rem;flex-direction:column;align-items:stretch;gap:.35rem;border:1px solid var(--line);border-radius:1rem;background:var(--bg);box-shadow:0 16px 40px rgba(0,0,0,.2)}
-  .utility-actions.menu-open .more-panel{display:flex}
-  .more-panel .utility-btn{justify-content:flex-start;width:100%;order:0}
   .app[data-state="running"] .tagsug,.app[data-state="paused"] .tagsug,.app[data-state="running"] .tag-hint,.app[data-state="paused"] .tag-hint{display:none}
   .center{display:flex;flex-direction:column;align-items:stretch;flex:1 0 auto;gap:0}
   .center::before{content:none}
@@ -944,19 +812,30 @@ button, input { font: inherit; color: inherit; }
 
 @media (max-width:330px){.stats{grid-template-columns:1fr}.slot{grid-template-columns:1.4rem minmax(0,1fr)}.slot .nums{grid-column:2;text-align:left}}
 </style>
+<style>
+/* The ring always fits inside the clock area, so it never spills over the buttons above it (iPad landscape, small windows) */
+.center::before,.ring-clock{width:auto;height:min(100%,35rem,calc(72vh - var(--world-h)));max-width:min(76vw,35rem);max-width:min(76cqw,35rem);aspect-ratio:1}
+@media (max-width:760px) and (min-height:521px){
+  .stage::before,.ring-clock{width:auto;height:min(100%,29rem);max-width:min(88vw,29rem);max-width:min(88cqw,29rem);aspect-ratio:1}
+}
+@media (min-width:600px) and (max-height:520px){
+  .center::before,.ring-clock{height:min(100%,30rem);max-width:min(46vw,30rem);max-width:min(46cqw,30rem)}
+}
+/* Touch screens (iPad, phones): comfortable tap targets */
+@media (pointer:coarse){
+  .btn{min-height:2.85rem}
+  .modes button{min-height:2.4rem}
+  .setter input{min-height:2.6rem}
+}
+</style>
 <div class="shell">
 <main class="app" id="app" data-state="idle">
   <div class="top">
     <div class="utility-row">
       <span class="eyebrow">FOCUS • FLOW • FINISH</span>
       <div class="utility-actions">
-        <button class="utility-btn" id="moreBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-label="More options">⋯ <span>More</span></button>
-        <div class="more-panel" id="morePanel">
-          <button class="utility-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Toggle clap sound">🔊 <span>Sound</span></button>
-          <button class="utility-btn" id="buddyBtn" type="button" aria-pressed="true" aria-label="Toggle buddies">🐾 <span>Buddies</span></button>
-          <button class="utility-btn" id="fullscreen" type="button" aria-label="Enter fullscreen">⛶ <span id="fullLabel">Fullscreen</span></button>
-        </div>
         <button class="utility-btn" id="hist" type="button" aria-expanded="false">History <span id="histn"></span></button>
+        <button class="utility-btn" id="fullscreen" type="button" aria-label="Enter fullscreen">⛶ <span id="fullLabel">Fullscreen</span></button>
       </div>
     </div>
     <input id="name" type="text" maxlength="60" autocomplete="off" enterkeyhint="done" placeholder="Name this session" aria-label="Session name">
@@ -1121,9 +1000,6 @@ button, input { font: inherit; color: inherit; }
   const KEY = 'quiet-timer-v1';
   let cur = T.fresh('');
   let runs = [];
-  let sound = true;    /* clap sound on/off */
-  let buddies = true;  /* mascots on/off */
-  let buddyKinds = null; /* which two buddies live on screen (kept between visits) */
   let discarded = null; /* last session thrown away with Reset: { timer, at } */
   let goal = 120;      /* daily goal, minutes */
   let range = '7';     /* tag stats range: '7' | '30' | 'all' */
@@ -1176,9 +1052,6 @@ button, input { font: inherit; color: inherit; }
       if (nRuns.length !== d.runs.length) snapshot(JSON.stringify(d), 'before dropping unreadable sessions');
     }
     cur = nCur; runs = nRuns;
-    if (typeof d.buddies === 'boolean') buddies = d.buddies;
-    if (Array.isArray(d.buddyKinds)) buddyKinds = d.buddyKinds.slice(0, 2);
-    if (typeof d.sound === 'boolean') sound = d.sound;
     if (typeof d.goal === 'number' && d.goal >= 5) goal = Math.min(1440, d.goal);
     discarded = (d.discarded && typeof d.discarded.at === 'number' && d.discarded.timer && typeof d.discarded.timer.status === 'string')
       ? { at: d.discarded.at, timer: Object.assign(T.fresh(''), d.discarded.timer) } : null;
@@ -1208,7 +1081,7 @@ button, input { font: inherit; color: inherit; }
         if (shrinking || now - (meta.lastSnap || 0) > 15 * 60000) { snapshot(old, shrinking ? 'before a deletion' : 'automatic'); meta.lastSnap = now; writeMeta(meta); }
       }
       savedStamp = now;
-      localStorage.setItem(KEY, JSON.stringify({ v: 2, savedAt: now, tab: TAB, cur: cur, runs: runs, goal: goal, buddies: buddies, buddyKinds: buddyKinds, sound: sound, discarded: discarded }));
+      localStorage.setItem(KEY, JSON.stringify({ v: 2, savedAt: now, tab: TAB, cur: cur, runs: runs, goal: goal, discarded: discarded }));
       return true;
     } catch (e) {
       if (!saveWarned) { saveWarned = true; toast('Could not save: browser storage is full or blocked. Download a backup from History.'); }
@@ -1245,7 +1118,7 @@ button, input { font: inherit; color: inherit; }
   try { if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(function (g) { persistState = g; }); } catch (e) { /* ignore */ }
 
   /* backup file, restore from a file, restore from an automatic copy */
-  function backupObject() { return { app: 'quiet-timer', v: 2, exportedAt: Date.now(), runs: runs, goal: goal, buddies: buddies, sound: sound }; }
+  function backupObject() { return { app: 'quiet-timer', v: 2, exportedAt: Date.now(), runs: runs, goal: goal }; }
   function downloadBackup() {
     saveFile('quiet-timer-backup-' + ymd(Date.now()) + '.json', new Blob([JSON.stringify(backupObject(), null, 1)], { type: 'application/json' }));
     const m = readMeta(); m.fileBackup = Date.now(); writeMeta(m); renderDataCard();
@@ -1346,42 +1219,8 @@ button, input { font: inherit; color: inherit; }
   }
   function unlock() { try { if (wl) wl.release(); } catch (e) { /* ignore */ } wl = null; }
 
-  function beep() {
-    try {
-      const C = window.AudioContext || window.webkitAudioContext, ctx = new C();
-      [0, 0.35, 0.7].forEach(function (t) {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.frequency.value = 880; g.gain.value = 0.15;
-        o.connect(g); g.connect(ctx.destination);
-        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.2);
-      });
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    } catch (e) { /* ignore */ }
-  }
-
-  /* clap sound (soft, synthesised: no audio files) */
-  let actx = null;
-  function audio() {
-    try {
-      const C = window.AudioContext || window.webkitAudioContext;
-      if (!actx) actx = new C();
-      if (actx.state === 'suspended') actx.resume();
-      return actx;
-    } catch (e) { return null; }
-  }
-  function clapSound(n) {
-    if (!sound) return;
-    const c = audio(); if (!c) return;
-    const len = Math.floor(c.sampleRate * 0.18), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
-    for (let k = 0; k < n; k++) {
-      const t = c.currentTime + 0.05 + k * 0.22 + Math.random() * 0.03;
-      const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-      src.buffer = buf; f.type = 'bandpass'; f.frequency.value = 1500 + Math.random() * 600; f.Q.value = 0.9;
-      g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
-      src.connect(f); f.connect(g); g.connect(c.destination); src.start(t);
-    }
-  }
+  /* a silent alert when a countdown ends: the device vibrates, where it can */
+  function vibrateDone() { try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* ignore */ } }
 
   /* "time's up" when the tab is in the background: system notification + tab title */
   const BASE_TITLE = 'Quiet Timer';
@@ -1501,7 +1340,7 @@ button, input { font: inherit; color: inherit; }
     renderControls();
     renderStatus();
     updateTime();
-    updateToday(); renderTagSug(); buddySync(); renderRecover(); renderDataWarn();
+    updateToday(); renderTagSug(); worldSync(); renderRecover(); renderDataWarn();
     if (cur.status !== 'running') document.title = BASE_TITLE;
     $('histn').textContent = runs.length ? '(' + runs.length + ')' : '';
     const live = cur.status === 'running' || cur.status === 'paused';
@@ -1582,92 +1421,22 @@ button, input { font: inherit; color: inherit; }
     if (!s) { toast('Nothing new to log yet.'); return; }
     save(); renderAll();
     toast('Session ' + s.n + ' logged · ' + hms(s.ms) + ' · ' + hrs(s.ms) + ' h');
-    celebrate(false);
+    walkerCheer(1800);
   }
   function doStop(auto) {
     const r = T.stop(cur, Date.now());
     if (!r) return;
     clearTimeout(resetTimer); resetArmed = false;
     runs.push(r); save(); unlock(); renderAll();
-    if (auto === true) { beep(); notifyDone(r); toast("Time's up · " + hms(r.total) + logsText(r.sessions.length) + ((r.paused || 0) >= 1000 ? ' · paused ' + human(r.paused) : '')); }
+    if (auto === true) { vibrateDone(); notifyDone(r); toast("Time's up · " + hms(r.total) + logsText(r.sessions.length) + ((r.paused || 0) >= 1000 ? ' · paused ' + human(r.paused) : '')); }
     else toast('Session ended · saved ' + hms(r.total) + logsText(r.sessions.length) + ((r.paused || 0) >= 1000 ? ' · paused ' + human(r.paused) : ''));
-    celebrate(true);
-    if (!buddies) document.title = BASE_TITLE;
   }
 
-  /* ---- the world: a soft pastel landscape with little people and a long walk ---- */
-  const layer = $('buddies'), buddyBtn = $('buddyBtn');
-  const KINDS = ['cat', 'dog', 'bunny', 'panda', 'robot', 'kid'];
+  /* ---- the long walk: a soft pastel landscape where a tired walker never stops ---- */
+  const layer = $('buddies');
   const pick = function (a) { return a[Math.floor(Math.random() * a.length)]; };
   const rnd = function (a, b) { return a + Math.random() * (b - a); };
   const calm = function () { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
-
-  /* soft earthy pastels */
-  const SKIN = {
-    cat:   { fur: '#EFCBA7', dark: '#D9A683', foot: '#D9A683', belly: '#FBEBD6', torso: '#EFCBA7' },
-    dog:   { fur: '#DCC3A6', dark: '#A98B72', foot: '#C6AB8E', belly: '#F4EADB', torso: '#DCC3A6' },
-    bunny: { fur: '#EADFCF', dark: '#EFC3CB', foot: '#D8CBB6', belly: '#FBF5EA', torso: '#EADFCF' },
-    panda: { fur: '#F4F1EC', dark: '#6E6A66', foot: '#6E6A66', belly: '#F4F1EC', torso: '#F4F1EC' },
-    robot: { fur: '#CBD6DB', dark: '#8FA0AA', foot: '#8FA0AA', belly: '#B2C2CA', torso: '#B2C2CA' },
-    kid:   { fur: '#F2D9C4', dark: '#8C6E5A', foot: '#8E96A8', belly: '#9FB8A8', torso: '#9FB8A8' }
-  };
-  const star = function (cx, cy, s, cls) {
-    return '<polygon class="' + cls + '" fill="#EEDCA6" points="' + [[cx, cy - s], [cx + s * .3, cy - s * .3], [cx + s, cy], [cx + s * .3, cy + s * .3], [cx, cy + s], [cx - s * .3, cy + s * .3], [cx - s, cy], [cx - s * .3, cy - s * .3]].map(function (p) { return p.join(','); }).join(' ') + '"/>';
-  };
-
-  /* one character: a shared body, plus a head/ears/tail that make it a cat, dog, bunny, panda, robot or kid */
-  function buddySVG(kind) {
-    const P = SKIN[kind], ink = '#4A433C', fur = P.fur, dark = P.dark;
-    const isR = kind === 'robot', isP = kind === 'panda', isK = kind === 'kid';
-    const armC = isP ? dark : isK ? '#9FB8A8' : isR ? '#B2C2CA' : fur;
-    const handC = isK ? '#F2D9C4' : isP ? dark : isR ? '#E3EAEE' : fur;
-    const blush = '<circle cx="26" cy="41" r="3.2" fill="#E8A5A8" opacity=".4"/><circle cx="54" cy="41" r="3.2" fill="#E8A5A8" opacity=".4"/>';
-    const eye = function (x, y) {
-      if (isR) return '<circle cx="' + x + '" cy="' + y + '" r="3.3" fill="#9FD6CC"/>';
-      if (isP) return '<circle cx="' + x + '" cy="' + y + '" r="2.7" fill="#fff"/><circle cx="' + x + '" cy="' + y + '" r="1.5" fill="' + ink + '"/>';
-      return '<circle cx="' + x + '" cy="' + y + '" r="2.8" fill="' + ink + '"/><circle cx="' + (x + .9) + '" cy="' + (y - 1) + '" r=".95" fill="#fff"/>';
-    };
-    let tail = '', head = '', eyes = '';
-    if (kind === 'cat') {
-      tail = '<g class="b-tail" style="transform-origin:52px 78px"><path d="M52 80 q18 -2 14 -20" fill="none" stroke="' + dark + '" stroke-width="6.5" stroke-linecap="round"/></g>';
-      head = '<polygon points="22,27 23,6 37,20" fill="' + fur + '"/><polygon points="58,27 57,6 43,20" fill="' + fur + '"/><polygon points="25,22 25.5,12 32,19" fill="#EFC3CB"/><polygon points="55,22 54.5,12 48,19" fill="#EFC3CB"/><circle cx="40" cy="34" r="19" fill="' + fur + '"/>' + blush + '<path d="M38.4 39.5 h3.2 l-1.6 1.9z" fill="#E3A0A0"/><path d="M36.5 43 q3.5 3 7 0" stroke="' + ink + '" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M19 38 l9 1.5 M19 43 l9 -1.5 M61 38 l-9 1.5 M61 43 l-9 -1.5" stroke="#C9A98A" stroke-width="1" stroke-linecap="round"/>';
-      eyes = eye(32.5, 35) + eye(47.5, 35);
-    } else if (kind === 'dog') {
-      tail = '<g class="b-tail" style="transform-origin:52px 78px;animation-duration:.45s"><path d="M52 78 q12 -4 10 -16" fill="none" stroke="' + dark + '" stroke-width="6" stroke-linecap="round"/></g>';
-      head = '<ellipse class="b-ear" cx="21" cy="33" rx="6.5" ry="12" fill="' + dark + '" transform="rotate(12 21 33)"/><ellipse class="b-ear" cx="59" cy="33" rx="6.5" ry="12" fill="' + dark + '" transform="rotate(-12 59 33)"/><circle cx="40" cy="34" r="19" fill="' + fur + '"/><ellipse cx="40" cy="42" rx="9.5" ry="6.8" fill="#F4EADB"/><ellipse cx="40" cy="38.6" rx="3.4" ry="2.4" fill="#6E5A4E"/><path d="M37.4 45 q2.6 5.5 5.2 0z" fill="#E8A0A8"/>';
-      eyes = eye(32, 33) + eye(48, 33);
-    } else if (kind === 'bunny') {
-      tail = '<circle class="b-tail" cx="56" cy="80" r="5.5" fill="#fff" stroke="#D8CBB6" style="transform-origin:56px 80px"/>';
-      head = '<g class="b-ear" style="transform-origin:31px 24px;animation:bd-wag 2.6s ease-in-out infinite alternate"><ellipse cx="31" cy="9" rx="6" ry="16" fill="' + fur + '" stroke="#D8CBB6"/><ellipse cx="31" cy="10" rx="3" ry="11" fill="#EFC3CB"/></g><ellipse cx="49" cy="9" rx="6" ry="16" fill="' + fur + '" stroke="#D8CBB6"/><ellipse cx="49" cy="10" rx="3" ry="11" fill="#EFC3CB"/><circle cx="40" cy="34" r="19" fill="' + fur + '" stroke="#D8CBB6"/>' + blush + '<ellipse cx="40" cy="39.5" rx="2.3" ry="1.7" fill="#E8A0A8"/><path d="M40 41 v2 M40 43 q-3 2.6 -5 0 M40 43 q3 2.6 5 0" stroke="' + ink + '" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
-      eyes = eye(32.5, 35) + eye(47.5, 35);
-    } else if (kind === 'panda') {
-      head = '<circle cx="24" cy="19" r="7.5" fill="' + dark + '"/><circle cx="56" cy="19" r="7.5" fill="' + dark + '"/><circle cx="40" cy="34" r="19" fill="' + fur + '" stroke="#DDD6CC" stroke-width="1"/><ellipse cx="31.5" cy="35" rx="5.8" ry="7.4" fill="' + dark + '" transform="rotate(-20 31.5 35)"/><ellipse cx="48.5" cy="35" rx="5.8" ry="7.4" fill="' + dark + '" transform="rotate(20 48.5 35)"/><ellipse cx="40" cy="41.5" rx="3.2" ry="2.3" fill="' + dark + '"/><path d="M36.5 45 q3.5 3 7 0" stroke="' + dark + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
-      eyes = eye(31.5, 35) + eye(48.5, 35);
-    } else if (isR) {
-      head = '<line x1="40" y1="16" x2="40" y2="6" stroke="' + dark + '" stroke-width="2"/><circle class="b-led" cx="40" cy="5" r="3" fill="#E3A0A0"/><circle cx="20" cy="34" r="3.2" fill="' + dark + '"/><circle cx="60" cy="34" r="3.2" fill="' + dark + '"/><rect x="22" y="16" width="36" height="35" rx="11" fill="' + fur + '"/><rect x="27" y="22" width="26" height="22" rx="8" fill="#56636C"/><path d="M35 38 q5 4 10 0" stroke="#9FD6CC" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
-      eyes = eye(34, 31) + eye(46, 31);
-    } else {
-      head = '<circle cx="40" cy="34" r="19" fill="' + fur + '"/><path d="M21 33 a19 19 0 0 1 38 0 q-8 -9 -19 -8 q-11 -1 -19 8z" fill="' + dark + '"/><circle cx="21.5" cy="34" r="3" fill="' + dark + '"/>' + blush + '<path d="M36 43.5 q4 3.5 8 0" stroke="' + ink + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
-      eyes = eye(32.5, 37) + eye(47.5, 37);
-    }
-    const feet = '<ellipse class="b-foot L" cx="32" cy="87" rx="7.5" ry="4.5" fill="' + P.foot + '"/><ellipse class="b-foot R" cx="48" cy="87" rx="7.5" ry="4.5" fill="' + P.foot + '"/>';
-    let body = '<g class="b-body"><ellipse cx="40" cy="67" rx="15.5" ry="15.5" fill="' + P.torso + '"' + (isP ? ' stroke="#DDD6CC"' : '') + '/>';
-    if (kind === 'cat' || kind === 'dog' || kind === 'bunny') body += '<ellipse cx="40" cy="70" rx="9" ry="10" fill="' + P.belly + '"/>';
-    if (isR) body = '<g class="b-body"><rect x="25" y="52" width="30" height="29" rx="9" fill="' + P.torso + '"/><rect x="34" y="60" width="12" height="7" rx="2.5" fill="#9FD6CC" opacity=".9"/>';
-    if (isK) body += '<path d="M34 53 q6 6 12 0" stroke="#fff" stroke-width="2" fill="none"/>';
-    body += '</g>';
-    const cup = '<g class="p p-cup"><rect x="48.5" y="69" width="9" height="9" rx="2.2" fill="#fff" stroke="' + ink + '" stroke-width="1.2"/><path d="M57.5 71 q4 .5 0 4.5" fill="none" stroke="' + ink + '" stroke-width="1.2"/></g>';
-    const arm = function (side, x) {
-      return '<g class="b-arm ' + side + '"><rect x="' + (x - 3.6) + '" y="55" width="7.2" height="16" rx="3.6" fill="' + armC + '"/><circle cx="' + x + '" cy="72" r="4" fill="' + handC + '"/>' + (side === 'R' ? cup : '') + '</g>';
-    };
-    const book = '<g class="p p-book"><path d="M23 66 l17 5 l17 -5 v15 l-17 5 l-17 -5z" fill="#D9A58F"/><path d="M25 66.5 l15 4.3 l15 -4.3 v12.5 l-15 4.3 l-15 -4.3z" fill="#FFF8EA"/><path d="M40 70.8 v12.5" stroke="#D9A58F" stroke-width="1.2"/><path class="b-page" style="transform-box:view-box;transform-origin:40px 76px" d="M40 70.8 l14 -4 v12 l-14 4z" fill="#F0E4CC"/></g>';
-    const laptop = '<g class="p p-laptop"><rect x="27" y="63" width="26" height="17" rx="2.5" fill="#CBD6DB" stroke="' + ink + '" stroke-opacity=".3"/><circle cx="40" cy="71.5" r="2.2" fill="#fff" opacity=".85"/><path d="M23 81 h34 l-3 4.5 h-28z" fill="#B2C2CA"/></g>';
-    const top =
-      '<g class="p p-zzz"><text class="z1" x="56" y="12" font-size="10" font-weight="700" fill="#A9BCC9">z</text><text class="z2" x="63" y="4" font-size="13" font-weight="700" fill="#A9BCC9">z</text><text class="z3" x="70" y="-6" font-size="16" font-weight="700" fill="#A9BCC9">Z</text></g>' +
-      '<g class="p p-stars">' + star(12, 6, 5, 's1') + star(68, 2, 6, 's2') + star(74, 40, 4, 's3') + '</g>' +
-      '<g class="p p-heart"><path d="M40 -4 c-6 -8 -16 0 -9 8 l9 9 l9 -9 c7 -8 -3 -16 -9 -8z" fill="#E8A5A8"/></g>';
-    return '<svg class="bdv" viewBox="0 4 80 90" aria-hidden="true"><ellipse cx="40" cy="90" rx="19" ry="3.4" fill="#000" opacity=".12"/><g class="b-all">' + tail + feet + body + book + laptop + arm('L', 27) + arm('R', 53) + '<g class="b-head">' + head + '<g class="b-eyes"><g class="b-look">' + eyes + '</g></g></g>' + top + '</g></svg>';
-  }
 
   /* the one who keeps walking: seen from behind, tired but never stopping */
   function walkerSVG() {
@@ -1689,40 +1458,6 @@ button, input { font: inherit; color: inherit; }
     return '<svg viewBox="0 0 40 50" width="100%" height="100%" aria-hidden="true"><ellipse cx="20" cy="46" rx="19" ry="5" fill="var(--w-h1)"/><rect x="13" y="27" width="14" height="19" rx="1.5" fill="#E8DECD"/><rect x="11" y="24" width="18" height="4" rx="1" fill="#D9CDB8"/><path d="M11 24 h18 l-9 -8z" fill="#D9A58F"/><rect x="18" y="35" width="4" height="9" rx="2" fill="#B49B83"/><path d="M20 16 v-12" stroke="#A78B73" stroke-width="1.4"/><path class="pen" d="M20 4 l11 3.6 l-11 3.6z" fill="#E3B7B0" style="transform-origin:20px 7.6px"/></svg>';
   }
 
-  /* eight little scenes: where the townsfolk spend their time. Character feet are at y=82 in a 120x92 box. */
-  const sc = function (name, cx, act, back, front) { return { name: name, cx: cx, act: act, back: back, front: front || '' }; };
-  const crop = function (x, y, d, a, b) { return '<g class="crop" style="transform-origin:' + x + 'px ' + y + 'px;animation-delay:' + d + 's"><path d="M' + x + ' ' + y + ' v-8" stroke="#8FA68A" stroke-width="2.2"/><ellipse cx="' + (x - 4.5) + '" cy="' + (y - 8) + '" rx="4.6" ry="2.2" fill="' + a + '" transform="rotate(-25 ' + (x - 4.5) + ' ' + (y - 8) + ')"/><ellipse cx="' + (x + 4.5) + '" cy="' + (y - 9) + '" rx="4.6" ry="2.2" fill="' + b + '" transform="rotate(25 ' + (x + 4.5) + ' ' + (y - 9) + ')"/></g>'; };
-  const flower = function (x, i) { return '<g class="fl" style="transform-origin:' + x + 'px 80px;animation-delay:' + (i * .4) + 's"><path d="M' + x + ' 80 v-12" stroke="#8FA68A" stroke-width="2"/><circle cx="' + x + '" cy="65" r="5" fill="' + ['#E3B7B0', '#EEDCA6', '#C9C2D6', '#E8C4BE'][i % 4] + '"/><circle cx="' + x + '" cy="65" r="1.8" fill="#FBF5EA"/></g>'; };
-  const wheel = function (x) { return '<g class="whl" style="transform-origin:' + x + 'px 79px"><circle cx="' + x + '" cy="79" r="6.4" fill="#7D756A"/><circle cx="' + x + '" cy="79" r="2.4" fill="#E3DCCF"/><path d="M' + x + ' 73 v12 M' + (x - 6) + ' 79 h12" stroke="#E3DCCF" stroke-width="1"/></g>'; };
-  const SCENES = [
-    sc('farm', 34, 'dig',
-      '<path d="M60 64 h52 l6 18 h-64z" fill="#C9AE92"/><path d="M64 70 h46 M62 76 h50" stroke="#B89C80" stroke-width="1.2" opacity=".7"/>' + [74, 88, 102].map(function (x, i) { return crop(x, 66, i * .3, '#A9BC9C', '#BFCDB0'); }).join('') + [81, 95].map(function (x, i) { return crop(x, 78, .6 + i * .3, '#BFCDB0', '#A9BC9C'); }).join(''),
-      '<g class="hoe" style="transform-origin:44px 68px"><line x1="44" y1="68" x2="66" y2="46" stroke="#A78B73" stroke-width="2.6" stroke-linecap="round"/><path d="M64 44 l9 3 l-4 5z" fill="#B8B2A8"/></g><ellipse cx="34" cy="41" rx="14" ry="3.6" fill="#EBDCAE"/><path d="M26 41 q8 -13 16 0z" fill="#EBDCAE"/><path d="M26 40 h16" stroke="#D9A58F" stroke-width="2"/>'),
-    sc('car', 56, 'drive',
-      '<rect x="2" y="78" width="116" height="9" rx="4.5" fill="#C9C1B3"/><path class="rd" d="M6 82.5 h108" stroke="#F4EFE6" stroke-width="1.8" stroke-dasharray="8 8" stroke-linecap="round"/>',
-      '<path d="M28 64 h58 q6 0 7 6 l1 8 h-70 l1 -8 q1 -6 7 -6z" fill="#D9A58F"/><path d="M28 71 h60" stroke="#F4EBDD" stroke-width="1.6" opacity=".8"/>' + wheel(40) + wheel(76) + '<circle cx="92" cy="71" r="2.4" fill="#F5E6B0"/><circle class="puff" cx="22" cy="76" r="3" fill="#EFE8DA"/><circle class="puff p2" cx="22" cy="76" r="3" fill="#EFE8DA"/><ellipse cx="58" cy="64" rx="9" ry="2.4" fill="#C98F78"/>'),
-    sc('coffee', 36, 'sip',
-      '<ellipse cx="82" cy="82" rx="14" ry="3" fill="#CFC4B3" opacity=".7"/><rect x="80.5" y="62" width="3" height="20" fill="#B49B83"/><path d="M82 17 v47" stroke="#B49B83" stroke-width="2"/><path d="M58 38 q24 -22 48 0z" fill="#E8C4BE"/><path d="M58 38 q6 -6 12 0 q6 -6 12 0 q6 -6 12 0 q6 -6 12 0" fill="none" stroke="#F4EBDD" stroke-width="1.4" opacity=".85"/>',
-      '<ellipse cx="82" cy="62" rx="17" ry="4.4" fill="#E9D6BC"/><rect x="77" y="55" width="9" height="7" rx="2" fill="#FBF5EA" stroke="#CFC4B3"/><path class="steam" d="M80 53 q-2 -4 0 -7 M84 53 q-2 -4 0 -7" stroke="#CFC4B3" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="92" cy="60.5" r="3" fill="#E3C9A8"/>'),
-    sc('reading', 70, 'read',
-      '<ellipse cx="60" cy="82" rx="50" ry="5" fill="#CFC4B3" opacity=".5"/><rect x="14" y="36" width="9" height="46" rx="4" fill="#B49B83"/><circle cx="18" cy="30" r="17" fill="#A9BC9C"/><circle cx="6" cy="38" r="12" fill="#BFCDB0"/><circle cx="31" cy="36" r="12" fill="#BFCDB0"/><g class="leaf"><ellipse cx="34" cy="44" rx="2.6" ry="1.4" fill="#EEDCA6" transform="rotate(30 34 44)"/></g>'),
-    sc('fishing', 30, 'fish',
-      '<ellipse cx="84" cy="76" rx="32" ry="9" fill="#BCD0D6"/><ellipse cx="84" cy="76" rx="22" ry="5.5" fill="#A9C0C9" opacity=".7"/><ellipse class="rip" cx="98" cy="75" rx="6" ry="2" fill="none" stroke="#F4F2EC" stroke-width="1"/>',
-      '<path d="M38 66 L68 32" stroke="#A78B73" stroke-width="2.2" stroke-linecap="round"/><path d="M68 32 q22 10 26 42" stroke="#E4DED3" stroke-width=".9" fill="none"/><circle class="bob" cx="94" cy="74" r="2.6" fill="#D9A58F"/>'),
-    sc('painting', 34, 'paint',
-      '<path d="M70 82 l6 -34 M92 82 l-6 -34 M81 82 v-30" stroke="#B49B83" stroke-width="2.4" stroke-linecap="round"/><rect x="62" y="30" width="38" height="28" rx="2" fill="#FBF5EA" stroke="#CFC4B3"/><path class="pt" d="M67 50 q8 -10 16 -2 t14 -6" pathLength="1" stroke="#E3B7B0" stroke-width="3.4" fill="none" stroke-linecap="round"/><path class="pt p2" d="M67 40 q10 6 18 0 t12 4" pathLength="1" stroke="#A9C0C9" stroke-width="3" fill="none" stroke-linecap="round"/>',
-      '<path d="M44 66 L63 44" stroke="#A78B73" stroke-width="1.8" stroke-linecap="round"/><circle cx="63.5" cy="43.5" r="2" fill="#E3B7B0"/>'),
-    sc('gardening', 34, 'water',
-      [66, 78, 90, 102].map(flower).join('') + '<ellipse cx="85" cy="82" rx="30" ry="3.4" fill="#C9AE92"/>',
-      '<g class="can"><path d="M44 62 h12 l-1 9 h-10z" fill="#BFD8CC"/><path d="M56 63 l9 -4" stroke="#BFD8CC" stroke-width="2.4" stroke-linecap="round"/><path class="drop" d="M67 61 v4 M70 62 v4 M64 62 v4" stroke="#A9C0C9" stroke-width="1.4" stroke-linecap="round"/></g>'),
-    sc('camping', 30, 'camp',
-      '<path d="M70 82 l20 -32 l20 32z" fill="#E8C4BE"/><path d="M90 50 l8 32 h-8z" fill="#D9A58F"/><ellipse cx="54" cy="82" rx="14" ry="3" fill="#CFC4B3" opacity=".6"/><path d="M46 80 l16 -3 M46 77 l16 3" stroke="#A78B73" stroke-width="2.6" stroke-linecap="round"/>',
-      '<g class="fire" style="transform-origin:54px 78px"><path d="M54 60 q8 8 4 14 q-4 6 -8 0 q-4 -6 4 -14z" fill="#F0C898"/><path d="M54 66 q4 5 2 8 q-2 3 -4 0 q-2 -3 2 -8z" fill="#F7E3B8"/></g><circle class="spark" cx="54" cy="56" r="1.2" fill="#F7E3B8"/><path d="M38 64 L52 71" stroke="#A78B73" stroke-width="1.8"/><circle cx="52" cy="71" r="2.8" fill="#FBF5EA"/>')
-  ];
-
-  /* what the townsfolk and the walker say */
-  const GOSSIP = ['Psst… look at him walking', 'He looks so tired', 'Still going. Wow.', 'He never stops, that one', 'Must be a big goal', 'Shh, he will hear us', 'Respect.', 'How many hours now?', 'I would have napped by now', 'Is that a flag over there?'];
-  const TOWN = { run: ['He is off again!', 'Look, he started'], rest: ['He is finally resting', 'A break, at last'], win: ['He did it!', 'What a day'], idle: ['Quiet today'] };
   const THOUGHTS = {
     run0: ['Step by step', 'One foot, then the other', 'Feeling good'],
     run1: ['So tired…', 'Is it far yet?', 'Just a little more'],
@@ -1731,23 +1466,22 @@ button, input { font: inherit; color: inherit; }
     win: ['We made it today!', 'What a walk!'],
     idle: ['Ready for a long walk', 'Press start when you are']
   };
-  const TAP = ['Hehe!', 'Hi there!', 'Boop!', 'You are doing great', 'Keep it up!'];
+  const TAP = ['Keep going!', 'I am fine, really', 'Thanks!', 'Almost there…'];
 
   const docEl = document.documentElement;
-  let world = null, laneEl = null, actorsEl = null, goalEl = null, kfEl = null, walkerEl = null, wk = null;
+  let world = null, laneEl = null, goalEl = null, kfEl = null, walkerEl = null, wk = null;
   let WW = 0, WH = 0, PH = false, Y0 = 0, ROAD = 0, FAR = 0;
-  let folk = [], gatherT = 0, gathering = false, cheerLock = false, cheerLockT = 0, laneTick = 0;
-  let lastStatus = null, lastBuilt = '', nextThought = 0, lastGoalCount = -1;
+  let cheerLock = false, cheerLockT = 0, laneTick = 0, lastStatus = null, lastBuilt = '', nextThought = 0, lastGoalCount = -1;
 
   function geo() {
     const app = $('app').getBoundingClientRect(), vh = window.innerHeight;
     const phone = window.matchMedia('(max-width:760px) and (min-height:521px)').matches;
-    let h = phone ? (vh >= 700 ? 128 : 0) : (vh >= 780 ? 190 : (vh >= 700 ? 150 : 0));
+    let h = phone ? (vh >= 700 ? 128 : 0) : (vh >= 780 ? 170 : (vh >= 700 ? 140 : 0));
     if (app.width < 300) h = 0;
     return { left: Math.round(app.left), w: Math.round(app.width), h: h, phone: phone };
   }
 
-  /* perspective: tiles and bushes start tiny at the horizon and grow as they come toward you */
+  /* perspective: path stones and bushes start tiny at the horizon and grow as they come toward you */
   function laneKeyframes(tw) {
     const sFar = FAR / ROAD, N = 14, th = 16;
     let css = '';
@@ -1765,68 +1499,10 @@ button, input { font: inherit; color: inherit; }
   }
 
   function teardown() {
-    clearTimeout(gatherT); gathering = false;
-    folk.forEach(function (f) { clearTimeout(f.t); clearTimeout(f.sayT); });
-    folk = [];
     if (wk) clearTimeout(wk.sayT);
     if (world) world.remove();
     if (kfEl) kfEl.remove();
-    world = null; kfEl = null; walkerEl = null; wk = null; laneEl = null; actorsEl = null; goalEl = null;
-  }
-
-  function slots() {
-    const sw = 120 * (PH ? 0.78 : 1.05), half = WW / 2, gap = ROAD + 8, out = [];
-    [[4, half - gap], [half + gap, WW - 4]].forEach(function (fl, side) {
-      const room = fl[1] - fl[0], n = Math.max(1, Math.min(PH ? 1 : 2, Math.floor(room / (sw * 0.95))));
-      for (let i = 0; i < n; i++) out.push({ cx: fl[0] + room * (i + 0.5) / n, side: side });
-    });
-    return out;
-  }
-  function sceneFor(f, slot, used) {
-    const ok = SCENES.filter(function (s) { return used.indexOf(s.name) < 0 && s.name !== f.lastDef; });
-    const def = pick(ok.length ? ok : SCENES), d = Math.random(), k = (PH ? 0.78 : 1.05) * (1 - 0.2 * d);
-    const bottom = Math.min(Math.round(4 + d * WH * 0.16), Math.round(WH - 92 * k));
-    return { def: def, k: k, bottom: bottom, left: Math.max(2, Math.min(WW - 120 * k - 2, slot.cx - 60 * k)) };
-  }
-  function showScene(f, s) {
-    removeScene(f);
-    const z = 1000 - s.bottom;
-    const mk = function (cls, svg, zz) {
-      const d = el('div', 'sc ' + cls);
-      d.style.cssText = 'left:' + s.left + 'px;bottom:' + s.bottom + 'px;width:' + (120 * s.k) + 'px;height:' + (92 * s.k) + 'px;z-index:' + zz;
-      d.innerHTML = '<svg viewBox="0 0 120 92" width="100%" height="100%" aria-hidden="true">' + svg + '</svg>';
-      return d;
-    };
-    const b = mk('sc-b', s.def.back, z - 1), fr = mk('sc-f', s.def.front, z + 1);
-    if (s.def.act === 'drive') fr.classList.add('drive');
-    actorsEl.append(b, fr);
-    f.scene = { def: s.def, nodes: [b, fr] };
-  }
-  function removeScene(f) {
-    if (!f.scene) return;
-    f.lastDef = f.scene.def.name;
-    f.scene.nodes.forEach(function (n) { n.classList.add('gone'); setTimeout(function () { n.remove(); }, 600); });
-    f.scene = null;
-  }
-
-  function setAct(h, act) { h.root.classList.remove('a-' + h.act); h.root.classList.add('a-' + act); h.act = act; }
-  function place(f, x, y, w, ms) {
-    f.root.style.transitionDuration = ms + 'ms';
-    f.root.style.left = Math.round(x - w / 2) + 'px'; f.root.style.bottom = Math.round(y) + 'px'; f.root.style.width = Math.round(w) + 'px';
-    f.root.style.zIndex = String(1000 - Math.round(y)); f.root.classList.toggle('drive', false);
-    f.x = x; f.y = y;
-  }
-  function walkTo(f, x, y, w, ms, done) {
-    clearTimeout(f.t);
-    f.inn.classList.toggle('flip', x < f.x);
-    setAct(f, 'walk'); place(f, x, y, w, ms);
-    f.t = setTimeout(function () { f.inn.classList.remove('flip'); if (done) done(); }, ms + 60);
-  }
-  function goScene(f, s, ms) {
-    const fx = s.left + s.def.cx * s.k, fy = s.bottom + 10 * s.k, w = 44 * s.k;
-    const arrive = function () { if (!world) return; showScene(f, s); setAct(f, s.def.act); f.root.classList.toggle('drive', s.def.act === 'drive'); };
-    if (!ms) { place(f, fx, fy, w, 0); arrive(); return; }
-    walkTo(f, fx, fy, w, ms, arrive);
+    world = null; kfEl = null; walkerEl = null; wk = null; laneEl = null; goalEl = null;
   }
 
   function say(h, text, ms) {
@@ -1838,39 +1514,11 @@ button, input { font: inherit; color: inherit; }
     if (r.left < 6) b.style.marginLeft = (6 - r.left) + 'px'; else if (r.right > vw - 6) b.style.marginLeft = (vw - 6 - r.right) + 'px';
     h.sayT = setTimeout(function () { b.remove(); if (h.say === b) h.say = null; }, ms || 3200);
   }
-  function poke(h, lines) {
+  function poke(h) {
     h.inn.classList.remove('jump'); void h.inn.offsetWidth;
-    h.inn.classList.add('jump'); h.root.classList.add('hearts');
-    setTimeout(function () { h.inn.classList.remove('jump'); h.root.classList.remove('hearts'); }, 1250);
-    say(h, pick(lines || TAP), 1900);
-  }
-
-  /* every 30 seconds the townsfolk leave what they are doing and meet near the road to gossip about the walker */
-  function startGather() {
-    clearTimeout(gatherT);
-    gatherT = setTimeout(startGather, 30000);
-    if (!world || gathering || cheerLock || document.hidden || calm() || folk.length < 2) return;
-    gathering = true;
-    const cx = WW / 2, w = PH ? 44 : 58;
-    folk.forEach(function (f, i) {
-      removeScene(f);
-      const side = i % 2 ? 1 : -1, step = Math.floor(i / 2);
-      const x = cx + side * (ROAD * 0.62 + w * 0.7 + step * (w + 8)), y = 5 + (i % 2) * 7;
-      walkTo(f, x, y, w, 2600 + i * 250, function () { f.inn.classList.toggle('flip', side > 0); setAct(f, 'chat'); });
-    });
-    const order = folk.slice().sort(function () { return Math.random() - 0.5; });
-    order.forEach(function (f, j) { setTimeout(function () { if (gathering && world) say(f, pick(GOSSIP), 2300); }, 3400 + j * 1800); });
-    setTimeout(disperse, 3400 + order.length * 1800 + 1500);
-  }
-  function disperse() {
-    if (!gathering || !world) return;
-    const sl = slots().sort(function () { return Math.random() - 0.5; }), used = [];
-    folk.forEach(function (f, i) {
-      f.inn.classList.remove('flip');
-      const s = sceneFor(f, sl[i % sl.length], used); used.push(s.def.name);
-      goScene(f, s, 2800 + i * 300);
-    });
-    setTimeout(function () { gathering = false; }, 3800);
+    h.inn.classList.add('jump');
+    setTimeout(function () { h.inn.classList.remove('jump'); }, 700);
+    say(h, pick(TAP), 1900);
   }
 
   /* the walker: tired grows with the length of the session, but he keeps going */
@@ -1913,9 +1561,9 @@ button, input { font: inherit; color: inherit; }
     teardown();
     const g = geo();
     WW = g.w; WH = g.h; PH = g.phone; lastBuilt = [g.left, g.w, g.h, g.phone].join();
-    docEl.style.setProperty('--world-h', (buddies ? WH : 0) + 'px');
-    document.body.classList.toggle('bd-on', buddies && WH > 0);
-    if (!buddies || !WH) return;
+    docEl.style.setProperty('--world-h', WH + 'px');
+    document.body.classList.toggle('bd-on', WH > 0);
+    if (!WH) return;
     Y0 = Math.round(WH * 0.42); ROAD = Math.min(WW * 0.2, PH ? 66 : 112); FAR = ROAD * 0.17;
     const tw = Math.round(ROAD * 0.62), cx = WW / 2;
     kfEl = el('style'); kfEl.textContent = laneKeyframes(tw); document.head.append(kfEl);
@@ -1928,107 +1576,33 @@ button, input { font: inherit; color: inherit; }
       '<div class="w-ground" style="top:' + Y0 + 'px"></div>' +
       '<svg class="w-road" width="' + WW + '" height="' + WH + '" viewBox="0 0 ' + WW + ' ' + WH + '" aria-hidden="true"><polygon points="' + (cx - FAR) + ',' + Y0 + ' ' + (cx + FAR) + ',' + Y0 + ' ' + (cx + ROAD) + ',' + WH + ' ' + (cx - ROAD) + ',' + WH + '" fill="var(--w-road)"/><path d="M' + (cx - FAR) + ' ' + Y0 + ' L' + (cx - ROAD) + ' ' + WH + ' M' + (cx + FAR) + ' ' + Y0 + ' L' + (cx + ROAD) + ' ' + WH + '" stroke="var(--w-edge)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' +
       '<div class="w-goal" style="top:' + (Y0 + 2) + 'px;--gs:.42">' + goalSVG() + '</div><div class="w-lane"></div><div class="w-actors"></div>';
-    laneEl = world.querySelector('.w-lane'); actorsEl = world.querySelector('.w-actors'); goalEl = world.querySelector('.w-goal');
+    laneEl = world.querySelector('.w-lane'); goalEl = world.querySelector('.w-goal');
     layer.append(world);
 
     walkerEl = el('div', 'w-walker m-idle t0');
-    walkerEl.style.width = Math.round(WH * 0.36) + 'px'; walkerEl.style.zIndex = '990';
-    const wi = el('div', 'wk-in'); wi.innerHTML = walkerSVG(); walkerEl.append(wi); actorsEl.append(walkerEl);
+    walkerEl.style.width = Math.round(WH * 0.4) + 'px'; walkerEl.style.zIndex = '990';
+    const wi = el('div', 'wk-in'); wi.innerHTML = walkerSVG(); walkerEl.append(wi); world.querySelector('.w-actors').append(walkerEl);
     wk = { root: walkerEl, inn: wi, say: null, sayT: 0 };
-    walkerEl.addEventListener('click', function () { poke(wk, ['Keep going!', 'I am fine, really', 'Thanks!', 'Almost there…']); });
-
-    const sl = slots(), n = Math.min(sl.length, PH ? 2 : (WW >= 1000 ? 4 : 3)), used = [];
-    const kinds = KINDS.slice().sort(function () { return Math.random() - 0.5; }).slice(0, n);
-    kinds.forEach(function (kind, i) {
-      const root = el('div', 'tw'), inn = el('div', 'tw-in'); inn.innerHTML = buddySVG(kind); root.append(inn);
-      root.style.setProperty('--bl', (-Math.random() * 4).toFixed(1) + 's');
-      const f = { root: root, inn: inn, kind: kind, act: 'look', x: 0, y: 0, t: 0, say: null, sayT: 0, scene: null, lastDef: '' };
-      root.addEventListener('click', function () { poke(f); });
-      actorsEl.append(root); folk.push(f);
-      const s = sceneFor(f, sl[i], used); used.push(s.def.name);
-      goScene(f, s, 0);
-      root.classList.add('enter'); setTimeout(function () { root.classList.remove('enter'); }, 800);
-    });
+    walkerEl.addEventListener('click', function () { poke(wk); });
     walkerMode(); lastGoalCount = -1; journeyTick();
-    gatherT = setTimeout(startGather, 30000);
   }
 
   /* called whenever the screen is redrawn: build the world, rebuild it if the size changed, react to the timer */
   let resizeT = 0;
-  function buddySync() {
-    if (!buddies) { if (world || lastBuilt) { teardown(); docEl.style.setProperty('--world-h', '0px'); document.body.classList.remove('bd-on'); lastBuilt = ''; lastStatus = null; } return; }
+  function worldSync() {
     const g = geo(), sig = [g.left, g.w, g.h, g.phone].join();
     if (sig !== lastBuilt) { buildWorld(); lastStatus = null; }
     if (!world) return;
-    const st = cur.status;
-    if (st !== lastStatus) {
-      const first = lastStatus === null; lastStatus = st;
-      walkerMode();
-      if (!first && !gathering && folk.length && !calm()) {
-        const key = st === 'running' ? 'run' : st === 'paused' ? 'rest' : st === 'stopped' ? 'win' : 'idle';
-        say(pick(folk), pick(TOWN[key]), 3000);
-      }
-    }
+    if (cur.status !== lastStatus) { lastStatus = cur.status; walkerMode(); }
   }
-  function cheerWorld(ms) {
+  /* a little cheer from the walker when you press Log */
+  function walkerCheer(ms) {
+    if (!world) return;
     cheerLock = true; walkerMode();
-    folk.forEach(function (f) { setAct(f, 'clap'); });
     clearTimeout(cheerLockT);
-    cheerLockT = setTimeout(function () {
-      cheerLock = false; walkerMode();
-      folk.forEach(function (f) { if (!gathering) setAct(f, f.scene ? f.scene.def.act : 'look'); });
-    }, ms + 400);
+    cheerLockT = setTimeout(function () { cheerLock = false; walkerMode(); }, ms);
   }
-
-  /* clapping celebration after End session (big) or Log (small) */
-  let cheerEl = null, cheerT = null;
-  function celebrate(big) {
-    if (!buddies) return;
-    clearTimeout(cheerT);
-    if (cheerEl) cheerEl.remove();
-    const box = el('div', 'cheer');
-    const kinds = big ? KINDS.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 3) : [pick(KINDS)];
-    kinds.forEach(function (k, i) {
-      const c = el('div', 'cr a-clap'); c.style.setProperty('--d', (i * 120) + 'ms'); c.innerHTML = buddySVG(k); box.append(c);
-    });
-    box.append(el('div', 'cr-say', pick(big ? ['Great focus!', 'You did it!', 'Proud of you!', 'Nice session!', 'Well done!'] : ['Logged!', 'Nice!', 'Keep going!'])));
-    if (!calm()) {
-      const cols = ['#EFCBA7', '#9FB8A8', '#E3B7B0', '#EEDCA6', '#C9C2D6', '#A9BCC9'];
-      for (let i = 0; i < (big ? 18 : 8); i++) {
-        const c = el('span', 'cf');
-        c.style.background = pick(cols);
-        c.style.setProperty('--x', Math.round((Math.random() - 0.5) * 260) + 'px');
-        c.style.setProperty('--y', Math.round(-60 - Math.random() * 150) + 'px');
-        c.style.setProperty('--r', Math.round((Math.random() - 0.5) * 720) + 'deg');
-        c.style.setProperty('--cd', Math.round(Math.random() * 250) + 'ms');
-        box.append(c);
-      }
-    }
-    layer.append(box); cheerEl = box;
-    clapSound(big ? 5 : 2);
-    cheerWorld(big ? 3600 : 2400);
-    cheerT = setTimeout(function () {
-      box.classList.add('out');
-      setTimeout(function () { box.remove(); if (cheerEl === box) cheerEl = null; }, 520);
-    }, big ? 3600 : 2400);
-  }
-
-  function syncBuddyBtn() { buddyBtn.setAttribute('aria-pressed', String(buddies)); }
-  buddyBtn.addEventListener('click', function () {
-    buddies = !buddies; syncBuddyBtn(); save();
-    if (buddies) { lastBuilt = ''; buddySync(); toast('The little world is back 🌿'); celebrate(false); }
-    else { teardown(); layer.replaceChildren(); cheerEl = null; docEl.style.setProperty('--world-h', '0px'); document.body.classList.remove('bd-on'); lastBuilt = ''; toast('Buddies are off'); }
-  });
-  const soundBtn = $('soundBtn');
-  function syncSoundBtn() { soundBtn.setAttribute('aria-pressed', String(sound)); soundBtn.firstChild.nodeValue = sound ? '🔊 ' : '🔇 '; }
-  soundBtn.addEventListener('click', function () {
-    sound = !sound; save(); syncSoundBtn();
-    toast(sound ? 'Clap sound on' : 'Clap sound off');
-    if (sound) clapSound(2);
-  });
-  syncSoundBtn();
-  syncBuddyBtn();
-  function relayout() { clearTimeout(resizeT); resizeT = setTimeout(buddySync, 220); }
+  function relayout() { clearTimeout(resizeT); resizeT = setTimeout(worldSync, 220); }
   window.addEventListener('resize', relayout);
   if (window.ResizeObserver) new ResizeObserver(relayout).observe($('app'));
 
@@ -2508,12 +2082,6 @@ button, input { font: inherit; color: inherit; }
   });
   nameEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') nameEl.blur(); });
   $('hist').addEventListener('click', function () { if (sheet.hidden) openSheet(); else closeSheet(); });
-  /* More menu (phones): sound, buddies and fullscreen live in a small popover */
-  const utilActions = document.querySelector('.utility-actions'), moreBtn = $('moreBtn');
-  function setMenu(open) { utilActions.classList.toggle('menu-open', open); moreBtn.setAttribute('aria-expanded', String(open)); }
-  moreBtn.addEventListener('click', function () { setMenu(!utilActions.classList.contains('menu-open')); });
-  document.addEventListener('click', function (e) { if (!utilActions.contains(e.target)) setMenu(false); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
   /* tap the dimmed area outside the bottom sheet to close it */
   const phoneQuery = window.matchMedia('(max-width:760px) and (min-height:521px)');
   document.addEventListener('click', function (e) {
@@ -2522,6 +2090,7 @@ button, input { font: inherit; color: inherit; }
     e.preventDefault(); e.stopPropagation(); closeSheet();
   }, true);
   const fsButton = $('fullscreen');
+  if (!document.documentElement.requestFullscreen) fsButton.hidden = true; /* iPhone browsers have no fullscreen */
   function syncFullscreenLabel() {
     const active = !!document.fullscreenElement;
     $('fullLabel').textContent = active ? 'Exit fullscreen' : 'Fullscreen';
@@ -2567,158 +2136,5 @@ button, input { font: inherit; color: inherit; }
   setInterval(updateTime, 200);
 })();
 </script>
-
-
-<style id="ipad-responsive-overrides">
-/* iPad / medium-tablet layout (including 13-inch iPad Pro portrait). */
-@media (min-width: 761px) and (max-width: 1199px) {
-  .shell {
-    width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    height: 100vh;
-    height: 100dvh;
-  }
-
-  .app {
-    width: 100%;
-    min-width: 0;
-    min-height: 100%;
-    padding: clamp(1.25rem, 2.8vw, 2.5rem)
-             max(1.5rem, env(safe-area-inset-right, 0px))
-             max(1.25rem, env(safe-area-inset-bottom, 0px))
-             max(1.5rem, env(safe-area-inset-left, 0px));
-  }
-
-  .top {
-    width: min(100%, 58rem);
-    margin-inline: auto;
-    gap: clamp(.55rem, 1.2vh, 1rem);
-  }
-
-  .utility-row {
-    width: 100%;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .utility-actions {
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    gap: .5rem;
-  }
-
-  .tag-editor {
-    width: min(100%, 36rem);
-  }
-
-  .tag-editor input {
-    flex: 1 1 15rem;
-    width: auto;
-    min-width: 10rem;
-  }
-
-  .center {
-    width: 100%;
-    min-width: 0;
-    flex: 1 0 auto;
-    padding-block: clamp(.75rem, 2vh, 1.75rem);
-  }
-
-  .center::before,
-  .ring-clock {
-    width: min(68cqw, 34rem, 66dvh);
-    max-width: 100%;
-  }
-
-  #time {
-    max-width: 100%;
-    font-size: min(calc(142cqw / var(--chars)), 32dvh, 22rem);
-  }
-
-  .controls {
-    width: min(100%, 58rem);
-    margin: 1rem auto 0;
-    gap: .65rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .controls .btn {
-    min-height: 2.9rem;
-    padding-inline: clamp(1rem, 1.8vw, 1.5rem);
-  }
-
-  /* A drawer avoids squeezing the timer column in portrait and split-screen layouts. */
-  .sheet {
-    position: fixed;
-    z-index: 20;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(34rem, 46vw);
-    height: 100vh;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-left: 1px solid var(--line);
-    border-radius: 1.25rem 0 0 1.25rem;
-    padding-top: max(1rem, env(safe-area-inset-top, 0px));
-    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
-    box-shadow: -16px 0 42px rgba(0,0,0,.18);
-    overscroll-behavior: contain;
-  }
-
-  .sheet-body {
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Finger-friendly controls and safe-area handling on iPadOS. */
-@media (pointer: coarse) and (min-width: 761px) {
-  .utility-btn,
-  .btn,
-  .btn.sm,
-  .link,
-  .modes button,
-  .range button,
-  .rn-toggle {
-    min-height: 2.75rem;
-  }
-
-  .utility-btn,
-  .btn,
-  .btn.sm,
-  .modes button,
-  .range button {
-    padding-inline: 1rem;
-  }
-
-  .setter input,
-  .tag-editor input,
-  #name,
-  .run-edit input,
-  .goal-edit input {
-    font-size: 16px; /* Prevents iPad Safari from zooming when an input receives focus. */
-  }
-
-  button,
-  .link,
-  input {
-    touch-action: manipulation;
-  }
-}
-
-/* Keep compact split-screen and landscape windows usable without clipping. */
-@media (min-width: 761px) and (max-height: 900px) {
-  .app { padding-block: max(.75rem, env(safe-area-inset-top, 0px)); }
-  .top { gap: .45rem; }
-  .center { padding-block: .5rem; }
-  #time { font-size: min(calc(132cqw / var(--chars)), 34dvh, 21rem); }
-}
-</style>
 
 </body></html>
